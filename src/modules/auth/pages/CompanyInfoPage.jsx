@@ -13,9 +13,20 @@ const CompanyInfoPage = () => {
 
   const handleInputChange = (e) => {
     const { id, value } = e.target
+    
+    // Map hyphenated IDs to camelCase state properties
+    const fieldMap = {
+      'company-name': 'companyName',
+      'website': 'website',
+      'portal-name': 'portalName',
+      'industry': 'industry'
+    }
+    
+    const fieldName = fieldMap[id] || id
+    
     setFormData(prev => ({
       ...prev,
-      [id]: value
+      [fieldName]: value
     }))
   }
 
@@ -33,7 +44,11 @@ const CompanyInfoPage = () => {
       return
     }
 
-    console.log('Company information saved:', formData)
+    console.log('Created account successfully, Welcome to Pathigai!', formData)
+    
+    // Here you would typically send the data to your backend
+    // For now, just show success message
+    alert('Created account successfully, Welcome to Pathigai!')
   }
 
   const industries = [

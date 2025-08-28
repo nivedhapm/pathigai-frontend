@@ -5,6 +5,7 @@ import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
 import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
 import PasswordInput from '../../../components/ui/PasswordInput/PasswordInput'
+import Recaptcha from '../../../components/ui/Recaptcha/Recaptcha'
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -68,7 +69,7 @@ const LoginPage = () => {
               <a href="#">Forgot Password?</a>
             </div>
 
-            <div className="g-recaptcha" data-sitekey="YOUR_SITE_KEY"></div>
+            <Recaptcha />
 
             <button type="submit">Login</button>
 

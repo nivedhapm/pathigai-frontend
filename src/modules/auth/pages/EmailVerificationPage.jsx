@@ -24,7 +24,7 @@ const EmailVerificationPage = () => {
         <div className="form-box">
           <h2>Verify your Signup</h2>
           <p className="subtitle">
-            Enter the one-time password sent to your email.
+            Enter the one-time password sent to
             <br /> person1@zohocorp.com
             <a href="#" className="change-link">change</a>
           </p>

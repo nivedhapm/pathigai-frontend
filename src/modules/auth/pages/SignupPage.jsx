@@ -5,6 +5,7 @@ import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
 import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
 import PasswordInput from '../../../components/ui/PasswordInput/PasswordInput'
+import Recaptcha from '../../../components/ui/Recaptcha/Recaptcha'
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -115,7 +116,7 @@ const SignupPage = () => {
               <label htmlFor="terms">I agree to the <a href="#">Terms & Conditions</a></label>
             </div>
 
-            <div className="g-recaptcha" data-sitekey="YOUR_SITE_KEY"></div>
+            <Recaptcha />
 
             <button type="submit">Sign Up</button>
 
