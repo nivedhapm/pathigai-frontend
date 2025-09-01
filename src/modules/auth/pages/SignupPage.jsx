@@ -1,21 +1,27 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
 import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
 import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
 import PasswordInput from '../../../components/ui/PasswordInput/PasswordInput'
 import Recaptcha from '../../../components/ui/Recaptcha/Recaptcha'
+import authService from '../../../shared/services/authService'
 
 const SignupPage = () => {
+  const navigate = useNavigate()
+
   const [formData, setFormData] = useState({
-    fullname: '',
+    fullName: '',
     email: '',
     phone: '',
     password: '',
     confirmPassword: '',
     terms: false
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [recaptchaToken, setRecaptchaToken] = useState('')
 
   const handleInputChange = (e) => {
     const { id, value, type, checked } = e.target
@@ -39,9 +45,50 @@ const SignupPage = () => {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleRecaptchaChange = (token) => {
+    setRecaptchaToken(token)
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Signup form submitted:', formData)
+    setError('')
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
+    if (!formData.terms) {
+      setError('Please accept the Terms & Conditions')
+      return
+    }
+
+    try {
+      setLoading(true)
+      
+      const authResponse = await authService.signup({
+        ...formData,
+        recaptchaToken
+      })
+
+      navigate('/sms-verification', {
+        state: {
+          userId: authResponse.userId,
+          email: formData.email,
+          phone: authService.normalizePhone(formData.phone),
+          maskedPhone: authService.maskPhone(formData.phone),
+          nextStep: authResponse.nextStep,
+          context: 'SIGNUP',
+          fullName: formData.fullName
+        }
+      })
+
+    } catch (err) {
+      console.error('Signup error:', err)
+      setError(err.message || 'Signup failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -57,13 +104,13 @@ const SignupPage = () => {
           <p className="subtitle">Start your journey with Pathigai</p>
 
           <form onSubmit={handleSubmit}>
-            <label htmlFor="fullname">Name*</label>
+            <label htmlFor="fullName">Name*</label>
             <input
               type="text"
-              id="fullname"
+              id="fullName"
               placeholder="John Doe"
               required
-              value={formData.fullname}
+              value={formData.fullName}
               onChange={handleInputChange}
             />
 
@@ -81,7 +128,7 @@ const SignupPage = () => {
             <input
               type="tel"
               id="phone"
-              placeholder="98765 43210"
+              placeholder="+91 98765 43210"
               required
               value={formData.phone}
               onChange={handleInputChange}
@@ -116,9 +163,15 @@ const SignupPage = () => {
               <label htmlFor="terms">I agree to the <a href="#">Terms & Conditions</a></label>
             </div>
 
-            <Recaptcha />
+            <Recaptcha onVerify={handleRecaptchaChange} />
 
-            <button type="submit">Sign Up</button>
+            {error && (
+              <div style={{ color: '#ff4d4f', marginTop: '8px' }}>{error}</div>
+            )}
+
+            <button type="submit" disabled={loading}>
+              {loading ? 'Signing Up...' : 'Sign Up'}
+            </button>
 
             <div className="login-link">
               Already have an account? <Link to="/login">Login</Link>

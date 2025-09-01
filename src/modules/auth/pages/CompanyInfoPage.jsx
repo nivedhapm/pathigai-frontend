@@ -1,125 +1,106 @@
 import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
 import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
+import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
+import authService from '../../../shared/services/authService'
 
 const CompanyInfoPage = () => {
+  const location = useLocation()
+  const navigate = useNavigate()
+  
+  const { userId, email, fullName } = location.state || {}
+
   const [formData, setFormData] = useState({
     companyName: '',
-    website: '',
-    portalName: '',
-    industry: ''
+    industry: '',
+    companyWebsite: ''
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleInputChange = (e) => {
     const { id, value } = e.target
-    
-    // Map hyphenated IDs to camelCase state properties
-    const fieldMap = {
-      'company-name': 'companyName',
-      'website': 'website',
-      'portal-name': 'portalName',
-      'industry': 'industry'
-    }
-    
-    const fieldName = fieldMap[id] || id
-    
     setFormData(prev => ({
       ...prev,
-      [fieldName]: value
+      [id]: value
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
 
-    if (!formData.companyName || !formData.website || !formData.portalName || !formData.industry) {
-      alert('Please fill in all required fields')
+    if (!formData.companyName || !formData.industry) {
+      setError('Please fill in all required fields')
       return
     }
 
-    const urlPattern = /^https?:\/\/.+/
-    if (!urlPattern.test(formData.website)) {
-      alert('Please enter a valid website URL (starting with http:// or https://)')
-      return
-    }
+    try {
+      setLoading(true)
 
-    console.log('Created account successfully, Welcome to Pathigai!', formData)
-    
-    // Here you would typically send the data to your backend
-    // For now, just show success message
-    alert('Created account successfully, Welcome to Pathigai!')
+      const companyData = {
+        userId,
+        companyName: formData.companyName.trim(),
+        industry: formData.industry.trim(),
+        companyWebsite: formData.companyWebsite.trim() || null
+      }
+
+      const response = await authService.completeSignup(companyData)
+
+      // Show success message and redirect to login
+      alert('🎉 Account created successfully! Welcome to Pathigai!')
+      navigate('/login')
+
+    } catch (err) {
+      console.error('Company creation error:', err)
+      setError(err.message || 'Failed to create company. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const industries = [
-    { value: '', label: 'Select Industry' },
-    { value: 'it-services', label: 'IT Services' },
-    { value: 'healthcare', label: 'Healthcare' },
-    { value: 'education', label: 'Education' },
-    { value: 'finance', label: 'Finance' },
-    { value: 'manufacturing', label: 'Manufacturing' },
-    { value: 'retail', label: 'Retail' },
-    { value: 'consulting', label: 'Consulting' },
-    { value: 'real-estate', label: 'Real Estate' },
-    { value: 'hospitality', label: 'Hospitality' },
-    { value: 'telecommunications', label: 'Telecommunications' },
-    { value: 'media', label: 'Media & Entertainment' },
-    { value: 'automotive', label: 'Automotive' },
-    { value: 'construction', label: 'Construction' },
-    { value: 'agriculture', label: 'Agriculture' },
-    { value: 'logistics', label: 'Logistics & Transportation' },
-    { value: 'government', label: 'Government' },
-    { value: 'non-profit', label: 'Non-Profit' },
-    { value: 'other', label: 'Other' }
-  ]
+  // Redirect if no required data
+  if (!userId) {
+    navigate('/signup')
+    return null
+  }
 
   return (
-    <div className="company-info-page">
+    <>
       <FloatingElements />
-      
-      {/* Top Nav */}
-      <div className="top-nav">
-        <div className="nav-logo">
-          <img src="/logo.svg" alt="Pathigai Logo" />
-          <h3>PATHIGAI</h3>
-        </div>
-        <ThemeToggle isCompanyPage={true} />
-      </div>
+      <ThemeToggle />
 
-      {/* Main Content */}
-      <main className="container">
+      <div className="container">
+        <LogoSection />
+
         <div className="form-box">
           <h2>Company Information</h2>
-          <p className="subtitle">Help us setup your account</p>
+          <p className="subtitle">
+            Complete your profile by adding company details
+          </p>
+
+          <div style={{ 
+            background: '#f0f8ff', 
+            padding: '15px', 
+            borderRadius: '8px', 
+            marginBottom: '20px',
+            border: '1px solid #e1f5fe'
+          }}>
+            <p style={{ margin: 0, fontSize: '14px', color: '#1565c0' }}>
+              <strong>Account:</strong> {fullName} ({email})
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit}>
-            <label htmlFor="company-name">Company Name*</label>
+            <label htmlFor="companyName">Company Name*</label>
             <input
               type="text"
-              id="company-name"
-              placeholder="ABC"
+              id="companyName"
+              placeholder="Acme Corporation"
               required
               value={formData.companyName}
-              onChange={handleInputChange}
-            />
-
-            <label htmlFor="website">Company Website*</label>
-            <input
-              type="url"
-              id="website"
-              placeholder="https://www.abc.com"
-              required
-              value={formData.website}
-              onChange={handleInputChange}
-            />
-
-            <label htmlFor="portal-name">Portal Name*</label>
-            <input
-              type="text"
-              id="portal-name"
-              placeholder="abcTrainees"
-              required
-              value={formData.portalName}
               onChange={handleInputChange}
             />
 
@@ -130,20 +111,59 @@ const CompanyInfoPage = () => {
               value={formData.industry}
               onChange={handleInputChange}
             >
-              {industries.map(industry => (
-                <option key={industry.value} value={industry.value}>
-                  {industry.label}
-                </option>
-              ))}
+              <option value="">Select Industry</option>
+              <option value="Education">Education</option>
+              <option value="Technology">Technology</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Finance">Finance</option>
+              <option value="Manufacturing">Manufacturing</option>
+              <option value="Retail">Retail</option>
+              <option value="Consulting">Consulting</option>
+              <option value="Non-Profit">Non-Profit</option>
+              <option value="Government">Government</option>
+              <option value="Other">Other</option>
             </select>
 
-            <button type="submit" style={{ width: '150px' }}>Save</button>
+            <label htmlFor="companyWebsite">Company Website</label>
+            <input
+              type="url"
+              id="companyWebsite"
+              placeholder="https://www.company.com"
+              value={formData.companyWebsite}
+              onChange={handleInputChange}
+            />
+
+            {error && (
+              <div style={{ color: '#ff4d4f', marginTop: '8px' }}>
+                {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading}>
+              {loading ? 'Creating Account...' : 'Complete Setup'}
+            </button>
+
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                style={{
+                  background: 'none',
+                  border: '1px solid #ddd',
+                  padding: '8px 16px',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Back
+              </button>
+            </div>
           </form>
         </div>
-      </main>
+      </div>
 
       <Footer />
-    </div>
+    </>
   )
 }
 
