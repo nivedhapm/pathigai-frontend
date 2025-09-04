@@ -27,7 +27,8 @@ const EmailVerificationPage = () => {
   const [error, setError] = useState('')
   const [resendLoading, setResendLoading] = useState(false)
   const [canResend, setCanResend] = useState(false)
-  const [countdown, setCountdown] = useState(30)
+  const [countdown, setCountdown] = useState(120) // 2 minutes
+  const [emailSent, setEmailSent] = useState(false) // Track if email was sent
 
   // Countdown timer for resend
   useEffect(() => {
@@ -45,6 +46,15 @@ const EmailVerificationPage = () => {
       navigate('/login')
     }
   }, [userId, navigate])
+
+  // Backend automatically sends email OTP when SMS verification completes
+  // No need to send from frontend
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
 
   const handleOTPComplete = (otp) => {
     handleVerify(otp)
@@ -67,7 +77,10 @@ const EmailVerificationPage = () => {
         context: context.toUpperCase()
       }
 
+      console.log('Verifying email OTP:', verificationData)
       const response = await authService.verifyOTP(verificationData)
+
+      console.log('Email verification response:', response)
 
       // Handle different verification contexts and next steps
       if (context === 'SIGNUP') {
@@ -96,7 +109,7 @@ const EmailVerificationPage = () => {
           
           if (loginResponse.jwtToken) {
             // Login successful - redirect to dashboard
-            navigate('/dashboard') // You'll need to create this route
+            navigate('/dashboard')
           }
         }
       } else if (context === 'PASSWORD_RESET') {
@@ -111,7 +124,7 @@ const EmailVerificationPage = () => {
       }
 
     } catch (err) {
-      console.error('Verification error:', err)
+      console.error('Email verification error:', err)
       setError(err.message || 'Verification failed. Please try again.')
     } finally {
       setLoading(false)
@@ -125,12 +138,12 @@ const EmailVerificationPage = () => {
 
       await authService.resendVerification(userId, 'EMAIL', context.toUpperCase())
       
-      // Reset countdown
+      // Reset countdown to 2 minutes
       setCanResend(false)
-      setCountdown(30)
+      setCountdown(120)
       
     } catch (err) {
-      console.error('Resend error:', err)
+      console.error('Email resend error:', err)
       setError(err.message || 'Failed to resend code. Please try again.')
     } finally {
       setResendLoading(false)
@@ -172,6 +185,9 @@ const EmailVerificationPage = () => {
     return null // Will redirect via useEffect
   }
 
+  // Don't show "use SMS instead" option for signup flow
+  const showChangeToSMS = context !== 'SIGNUP'
+
   return (
     <>
       <FloatingElements />
@@ -184,30 +200,53 @@ const EmailVerificationPage = () => {
           <h2>Email Verification</h2>
           <p className="subtitle">
             A one-time password has been sent to<br />
-            {maskedEmail || 'your email'}
-            <button 
-              onClick={handleChangeToSMS}
-              className="change-link"
-              disabled={loading}
-              style={{ 
-                background: 'none', 
-                border: 'none', 
-                color: '#007bff', 
-                textDecoration: 'underline',
-                cursor: 'pointer',
-                marginLeft: '8px'
-              }}
-            >
-              use SMS instead
-            </button>
+            {maskedEmail || email || 'your email'}
+            {showChangeToSMS && (
+              <button 
+                onClick={handleChangeToSMS}
+                className="change-link"
+                disabled={loading}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: '#007bff', 
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  marginLeft: '8px'
+                }}
+              >
+                use SMS instead
+              </button>
+            )}
           </p>
 
+          {/* Show OTP input directly - no loading state needed */}
           <OTPInput 
             length={6}
             onComplete={handleOTPComplete}
             onVerify={handleVerify}
             loading={loading}
           />
+
+          {showChangeToSMS && (
+            <div style={{ textAlign: 'center', marginTop: '15px', marginBottom: '10px' }}>
+              <button
+                onClick={handleChangeToSMS}
+                disabled={loading}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#007bff',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontFamily: 'inherit'
+                }}
+              >
+                Verify with SMS
+              </button>
+            </div>
+          )}
 
           {error && (
             <div style={{ color: '#ff4d4f', marginTop: '16px', textAlign: 'center' }}>
@@ -232,24 +271,9 @@ const EmailVerificationPage = () => {
               </button>
             ) : (
               <span style={{ color: '#666' }}>
-                Resend code in {countdown}s
+                Resend code in {formatTime(countdown)}
               </span>
             )}
-          </div>
-
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <button
-              onClick={() => navigate(-1)}
-              style={{
-                background: 'none',
-                border: '1px solid #ddd',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Back
-            </button>
           </div>
         </div>
       </div>

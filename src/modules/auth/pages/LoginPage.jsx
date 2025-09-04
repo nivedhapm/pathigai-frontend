@@ -105,7 +105,7 @@ const LoginPage = () => {
             <label htmlFor="password">Password*</label>
             <PasswordInput
               id="password"
-              placeholder="********"
+              placeholder="* * * * * * * *"
               required
               value={formData.password}
               onChange={handlePasswordChange}

@@ -5,6 +5,7 @@ import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
 import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
 import PasswordInput from '../../../components/ui/PasswordInput/PasswordInput'
+import PasswordStrengthIndicator from '../../../components/ui/PasswordStrengthIndicator/PasswordStrengthIndicator'
 import Recaptcha from '../../../components/ui/Recaptcha/Recaptcha'
 import authService from '../../../shared/services/authService'
 
@@ -49,12 +50,32 @@ const SignupPage = () => {
     setRecaptchaToken(token)
   }
 
+  const validatePasswordStrength = (password) => {
+    if (!password) return false;
+    
+    const checks = {
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      numbers: /\d/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+    
+    const score = Object.values(checks).filter(Boolean).length;
+    return score >= 3; // At least medium strength required
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
+      return
+    }
+
+    if (!validatePasswordStrength(formData.password)) {
+      setError('Password must be at least medium strength')
       return
     }
 
@@ -79,13 +100,19 @@ const SignupPage = () => {
           maskedPhone: authService.maskPhone(formData.phone),
           nextStep: authResponse.nextStep,
           context: 'SIGNUP',
-          fullName: formData.fullName
+          fullName: formData.fullName,
+          developmentMode: true // Add this flag
         }
       })
 
     } catch (err) {
       console.error('Signup error:', err)
-      setError(err.message || 'Signup failed. Please try again.')
+      setError(
+        err?.message ||
+        err?.data?.message ||
+        err?.response?.data?.message ||
+        'Signup failed. Please try again.'
+      )
     } finally {
       setLoading(false)
     }
@@ -137,16 +164,18 @@ const SignupPage = () => {
             <label htmlFor="password">Password*</label>
             <PasswordInput
               id="password"
-              placeholder="********"
+              placeholder="* * * * * * * *"
               required
               value={formData.password}
               onChange={handlePasswordChange}
             />
+            
+            <PasswordStrengthIndicator password={formData.password} />
 
             <label htmlFor="confirmPassword">Confirm Password*</label>
             <PasswordInput
               id="confirmPassword"
-              placeholder="********"
+              placeholder="* * * * * * * *"
               required
               value={formData.confirmPassword}
               onChange={handleConfirmPasswordChange}

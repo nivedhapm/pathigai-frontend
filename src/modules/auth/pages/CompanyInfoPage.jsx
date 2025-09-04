@@ -50,8 +50,9 @@ const CompanyInfoPage = () => {
       const response = await authService.completeSignup(companyData)
 
       // Show success message and redirect to login
-      alert('🎉 Account created successfully! Welcome to Pathigai!')
-      navigate('/login')
+      alert('Account created successfully! Welcome to Pathigai!')
+      // navigate('/login')
+      // Don't navigate to login page here anymore
 
     } catch (err) {
       console.error('Company creation error:', err)
@@ -118,6 +119,7 @@ const CompanyInfoPage = () => {
               <option value="Finance">Finance</option>
               <option value="Manufacturing">Manufacturing</option>
               <option value="Retail">Retail</option>
+              <option value="Retail">Fashion</option>
               <option value="Consulting">Consulting</option>
               <option value="Non-Profit">Non-Profit</option>
               <option value="Government">Government</option>
@@ -142,22 +144,7 @@ const CompanyInfoPage = () => {
             <button type="submit" disabled={loading}>
               {loading ? 'Creating Account...' : 'Complete Setup'}
             </button>
-
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                style={{
-                  background: 'none',
-                  border: '1px solid #ddd',
-                  padding: '8px 16px',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
-              >
-                Back
-              </button>
-            </div>
+            
           </form>
         </div>
       </div>
