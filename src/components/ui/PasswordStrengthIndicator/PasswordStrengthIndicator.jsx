@@ -39,26 +39,10 @@ const PasswordStrengthIndicator = ({ password }) => {
   return (
     <div style={{ marginBottom: '15px' }}>
       <div style={{
-        width: '100%',
-        height: '4px',
-        backgroundColor: '#f0f0f0',
-        borderRadius: '2px',
-        overflow: 'hidden',
-        marginBottom: '5px'
-      }}>
-        <div
-          style={{
-            width: `${progressWidth}%`,
-            height: '100%',
-            backgroundColor: strength.color,
-            transition: 'all 0.3s ease'
-          }}
-        />
-      </div>
-      <div style={{
         fontSize: '12px',
         color: strength.color,
-        fontWeight: '500'
+        fontWeight: '500',
+        marginBottom: '8px'
       }}>
         Password strength: {strength.label}
       </div>

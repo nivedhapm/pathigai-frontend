@@ -5,6 +5,7 @@ import LoginPage from './modules/auth/pages/LoginPage'
 import SignupPage from './modules/auth/pages/SignupPage'
 import EmailVerificationPage from './modules/auth/pages/EmailVerificationPage'
 import SMSVerificationPage from './modules/auth/pages/SMSVerificationPage'
+import ForgotPasswordPage from './modules/auth/pages/ForgotPasswordPage'
 import ResetPasswordPage from './modules/auth/pages/ResetPasswordPage'
 import CompanyInfoPage from './modules/auth/pages/CompanyInfoPage'
 
@@ -18,6 +19,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/email-verification" element={<EmailVerificationPage />} />
           <Route path="/sms-verification" element={<SMSVerificationPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/company-info" element={<CompanyInfoPage />} />
         </Routes>

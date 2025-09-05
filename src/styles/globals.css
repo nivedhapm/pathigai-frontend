@@ -99,18 +99,20 @@ body.dark .theme-toggle button {
   background: #3a3a3a;
 }
 
-/* Top Nav (for company-info page) */
+/* Top Nav (for verification pages) */
 .top-nav {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 50px;
+  height: 60px;
   padding: 10px 25px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
 }
 
 .top-nav .nav-logo {
@@ -132,12 +134,8 @@ body.dark .theme-toggle button {
   margin: 0;
 }
 
-.top-nav .theme-toggle button {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  color: inherit;
+body.dark .top-nav {
+  background: rgba(30, 30, 30, 0.95);
 }
 
 /* Main Content Container - FIXED LAYOUT */
@@ -262,7 +260,7 @@ body.dark .btn-secondary:hover {
 .form-box {
   flex: 1;
   background: #eaf4fa;
-  padding: 50px;
+  padding: 60px;
   border: 1px solid #8FB7C6;
   border-radius: 12px;
   box-shadow: 0 16px 16px rgba(0, 0, 0, 0.1);
@@ -270,11 +268,30 @@ body.dark .btn-secondary:hover {
   width: 100%;
   max-height: fit-content;
   transition: background 0.3s ease, color 0.3s ease;
+  transform: scale(0.9);
+  transform-origin: center;
+}
+
+/* Mobile scaling */
+@media (max-width: 768px) {
+  .form-box {
+    transform: scale(0.8);
+  }
 }
 
 /* Company Info Page specific form box */
 .company-info-page .form-box {
   max-width: 600px;
+  padding: 60px;
+}
+
+/* Desktop specific sizing for company info */
+@media (min-width: 901px) {
+  .company-info-page .form-box {
+    max-width: 600px;
+    width: 600px;
+    padding: 60px;
+  }
 }
 
 body.dark .form-box {
@@ -302,7 +319,7 @@ body.dark .form-box .subtitle {
 .otp-container {
   display: flex;
   gap: 10px;
-  justify-content: center;
+  justify-content:space-evenly;
   margin: 20px 0;
 }
 
@@ -320,12 +337,12 @@ body.dark .form-box .subtitle {
 .otp-input:focus {
   outline: none;
   border-color: #0077cc;
-  box-shadow: 0 0 0 3px rgba(0,119,204,0.1);
+  box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.255);
 }
 
 body.dark .otp-input {
   background: #3a3a3a;
-  border-color: #555;
+  border-color: #5297bc;
   color: #fff;
 }
 
@@ -334,7 +351,7 @@ body.dark .otp-input {
   text-align: center;
   margin: 15px 0;
   font-size: 14px;
-  color: #666;
+  color: #575757;
 }
 
 body.dark .resend-timer {
@@ -352,7 +369,7 @@ body.dark .resend-link {
 }
 
 .resend-link.disabled {
-  color: #999;
+  color: #999999;
   cursor: not-allowed;
   text-decoration: none;
 }
@@ -491,7 +508,7 @@ body.dark .forgot a {
 }
 
 .form-box button:disabled {
-  background: #ccc;
+  background: rgb(174, 175, 176);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -509,7 +526,7 @@ body.dark .form-box button:hover {
 }
 
 body.dark .form-box button:disabled {
-  background: #555;
+  background: rgb(174, 175, 176);
   box-shadow: none;
 }
 
@@ -554,9 +571,9 @@ body.dark .login-link a {
 
 /* reCAPTCHA */
 .g-recaptcha {
-  margin-bottom: 15px;
+  margin-bottom: 25px;
   display: block;
-  transform: scale(0.85);
+  transform: scale(0.75);
   transform-origin: left center;
 }
 
@@ -633,8 +650,9 @@ body.dark footer a {
   }
   
   .g-recaptcha {
-    transform: scale(0.85);
+    transform: scale(0.75);
     transform-origin: left center;
+    margin-bottom: 10px;
   }
   
   .floating-element {
@@ -669,7 +687,7 @@ body.dark footer a {
     max-width: 85%;
     padding: 40px;
     border-radius: 8px;
-    transform: scale(0.85);
+    transform: scale(0.8);
     transform-origin: top center;
   }
 
@@ -685,8 +703,9 @@ body.dark footer a {
   }
 
   .g-recaptcha {
-    transform: scale(0.8);
+    transform: scale(0.7);
     transform-origin: left center;
+    margin-bottom: 10px;
   }
   
   .otp-container {
@@ -708,7 +727,7 @@ body.dark footer a {
   }
 
   .otp-input:focus {
-    border-color: #3b82f6;
+    border-color: #8FB7C6;
     box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
   }
 
@@ -717,7 +736,7 @@ body.dark footer a {
     padding: 12px;
     font-size: 18px;
     font-weight: bold;
-    background: #ccc;
+    background: rgb(174, 175, 176);
     color: white;
     border: none;
     border-radius: 8px;
@@ -797,5 +816,178 @@ body.dark footer a {
   .landing-buttons {
     flex-direction: row;
     align-items: center;
+  }
+}
+
+/* Additional styles for improved resend UX - add these to your existing globals.css */
+
+/* Resend button styling */
+.resend-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.resend-button:hover {
+  color: #0056b3;
+}
+
+.resend-button:disabled {
+  color: #6c757d;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* Dark theme for resend button */
+body.dark .resend-button {
+  color: #66aaff;
+}
+
+body.dark .resend-button:hover {
+  color: #4d94ff;
+}
+
+body.dark .resend-button:disabled {
+  color: #6c757d;
+}
+
+/* Resend countdown text */
+.resend-countdown {
+  color: #474747;
+  font-size: 14px;
+  text-decoration: none;
+  cursor: default;
+}
+
+body.dark .resend-countdown {
+  color: #bbb;
+}
+
+/* Change verification type link styling */
+.change-link {
+  background: none;
+  border: none;
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  margin-left: 8px;
+}
+
+.change-link:hover {
+  color: #0056b3;
+}
+
+.change-link:disabled {
+  color: #6c757d;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+body.dark .change-link {
+  color: #66aaff;
+}
+
+body.dark .change-link:hover {
+  color: #4d94ff;
+}
+
+body.dark .change-link:disabled {
+  color: #6c757d;
+}
+
+/* Allow scrolling for signup page only */
+.signup-page {
+  overflow-y: auto;
+  height: auto;
+  min-height: 100vh;
+}
+
+.signup-page body {
+  overflow-y: auto;
+}
+
+/* Verification page specific centering */
+.verification-page .container {
+  min-height: calc(100vh - 70px); /* Account for top nav */
+  height: calc(100vh - 70px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.verification-page .form-box {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-height: fit-content;
+  padding: 60px;
+  overflow-y: auto;
+}
+
+/* Logo section in form box for desktop */
+.form-logo-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 2px;
+}
+
+.form-logo-section img {
+  width: 50px;
+  height: 50px;
+}
+
+.form-logo-section h3 {
+  font-family: 'Rubik', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* Mobile and tablet responsive adjustments */
+@media (max-width: 1024px) {
+  .verification-page .form-box {
+    height: fit-content;
+    min-height: auto;
+    max-height: fit-content;
+    padding: 60px;
+  }
+  
+  .verification-page .container {
+    height: auto;
+    min-height: 100vh;
+    align-items: flex-start;
+    padding-top: 80px;
+  }
+  
+  /* Hide logo in form box on mobile/tablet */
+  .form-logo-section {
+    display: none;
+  }
+}
+
+/* Keep the existing mobile and desktop scaling but add centering */
+@media (max-width: 768px) {
+  .verification-page .container {
+    min-height: calc(100vh - 60px);
+    height: auto;
+    padding: 10px;
+    padding-top: 70px;
+  }
+  
+  .verification-page .form-box {
+    max-height: fit-content;
+    height: auto;
+    padding: 50px;
   }
 }

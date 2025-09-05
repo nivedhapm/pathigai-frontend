@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
 import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
+import TopNav from '../../../components/common/TopNav/TopNav'
 import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
 import OTPInput from '../../../components/ui/OTPInput/OTPInput'
 import authService from '../../../shared/services/authService'
+import logo from '../../../assets/logo.svg'
 
 const SMSVerificationPage = () => {
   const location = useLocation()
@@ -29,9 +31,9 @@ const SMSVerificationPage = () => {
   const [resendLoading, setResendLoading] = useState(false)
   const [canResend, setCanResend] = useState(false)
   const [countdown, setCountdown] = useState(120) // 2 minutes
-  const [verificationAttempts, setVerificationAttempts] = useState(0) // ✅ Track attempts
+  const [verificationAttempts, setVerificationAttempts] = useState(0)
 
-  // ✅ Enhanced countdown timer
+  // Enhanced countdown timer
   useEffect(() => {
     let timer
     if (countdown > 0 && !canResend) {
@@ -42,7 +44,7 @@ const SMSVerificationPage = () => {
     return () => clearTimeout(timer)
   }, [countdown, canResend])
 
-  // ✅ Enhanced redirect check
+  // Enhanced redirect check
   useEffect(() => {
     if (!userId) {
       console.warn('No userId found, redirecting to login')
@@ -50,7 +52,40 @@ const SMSVerificationPage = () => {
     }
   }, [userId, navigate])
 
-  // ✅ Cleanup on unmount
+  // Auto-trigger SMS verification for temporary password users
+  useEffect(() => {
+    const initiateSMSVerification = async () => {
+      if (userId && isTemporaryPassword && context === 'LOGIN') {
+        try {
+          console.log('Auto-requesting SMS verification for temporary password user:', { userId, context })
+          
+          // First try to initiate verification
+          try {
+            const response = await authService.initiateVerification(userId, 'SMS', 'LOGIN')
+            console.log('SMS verification initiated successfully:', response)
+          } catch (initiateError) {
+            console.log('Initiate failed, trying resend:', initiateError.message)
+            // If initiate fails, try resend
+            const response = await authService.resendVerification(userId, 'SMS', 'LOGIN')
+            console.log('SMS verification resent successfully:', response)
+          }
+          
+          // Reset countdown after successful initiation
+          setCanResend(false)
+          setCountdown(120)
+        } catch (err) {
+          console.error('Failed to initiate SMS verification:', err)
+          setError(`Failed to send verification code: ${err.message || 'Please try resending manually.'}`)
+        }
+      }
+    }
+
+    // Add a small delay to ensure the page is fully loaded
+    const timer = setTimeout(initiateSMSVerification, 500)
+    return () => clearTimeout(timer)
+  }, [userId, isTemporaryPassword, context])
+
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       setLoading(false)
@@ -64,15 +99,21 @@ const SMSVerificationPage = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  // ✅ Enhanced OTP completion handler
+  // Enhanced OTP completion handler
   const handleOTPComplete = useCallback((otp) => {
     if (loading) return // Prevent multiple submissions
     handleVerify(otp)
   }, [loading])
 
-  // ✅ Comprehensive verification handler
+  // Comprehensive verification handler
   const handleVerify = async (otp) => {
-    // ✅ Rate limiting check
+    // Prevent double submission
+    if (loading) {
+      console.log('Already processing verification, ignoring duplicate request')
+      return
+    }
+
+    // Rate limiting check
     if (verificationAttempts >= 5) {
       setError('Too many failed attempts. Please request a new code.')
       return
@@ -104,14 +145,14 @@ const SMSVerificationPage = () => {
 
       const response = await authService.verifyOTP(verificationData)
 
-      // ✅ Enhanced response validation
+      // Enhanced response validation
       if (!response) {
         throw new Error('No response received from verification service')
       }
 
       console.log('Verification response:', response)
 
-      // ✅ Handle verification failure
+      // Handle verification failure
       if (response.verified === false) {
         setVerificationAttempts(prev => prev + 1)
         const remainingAttempts = 5 - (verificationAttempts + 1)
@@ -120,8 +161,15 @@ const SMSVerificationPage = () => {
         return
       }
 
-      // ✅ Reset attempts on success
+      // Reset attempts on success
       setVerificationAttempts(0)
+
+      console.log('Verification successful! Context and flags:', {
+        context,
+        isTemporaryPassword,
+        userId,
+        nextStep: response.nextStep
+      })
 
       // Handle different verification contexts and next steps
       if (context === 'SIGNUP') {
@@ -147,7 +195,6 @@ const SMSVerificationPage = () => {
             replace: true
           })
         } else if (response.nextStep === 'SIGNUP_COMPLETE') {
-          // ✅ Handle signup completion
           navigate('/dashboard', { replace: true })
         } else {
           console.warn('Unexpected nextStep for SIGNUP:', response.nextStep)
@@ -155,6 +202,7 @@ const SMSVerificationPage = () => {
         }
       } else if (context === 'LOGIN') {
         if (isTemporaryPassword) {
+          console.log('Temporary password user verified, redirecting to reset password')
           navigate('/reset-password', {
             state: {
               userId,
@@ -166,12 +214,16 @@ const SMSVerificationPage = () => {
           })
         } else {
           try {
+            console.log('Completing login for regular user')
             const loginResponse = await authService.completeLogin(userId)
+            console.log('Login completion response:', loginResponse)
             
-            if (loginResponse && loginResponse.jwtToken) {
+            if (loginResponse && (loginResponse.jwtToken || loginResponse.authToken)) {
               console.log('Login completed successfully')
+              alert('Successfully logged in.')
               navigate('/dashboard', { replace: true })
             } else {
+              console.warn('Login response missing token:', loginResponse)
               setError('Login completion failed. Please try again.')
             }
           } catch (loginError) {
@@ -198,7 +250,7 @@ const SMSVerificationPage = () => {
       console.error('Verification error:', err)
       setVerificationAttempts(prev => prev + 1)
       
-      // ✅ Enhanced error handling
+      // Enhanced error handling
       let errorMessage = 'Verification failed. Please try again.'
       
       if (err.isNetworkError) {
@@ -217,9 +269,9 @@ const SMSVerificationPage = () => {
     }
   }
 
-  // ✅ Enhanced resend handler
+  // Enhanced resend handler
   const handleResend = async () => {
-    if (resendLoading || !canResend) return
+    if (resendLoading || (!canResend && !isTemporaryPassword)) return
 
     try {
       setResendLoading(true)
@@ -228,13 +280,25 @@ const SMSVerificationPage = () => {
 
       console.log('Resending verification:', { userId, type: 'SMS', context })
 
-      await authService.resendVerification(userId, 'SMS', context.toUpperCase())
+      // For temporary password users, try both initiate and resend
+      if (isTemporaryPassword) {
+        try {
+          const response = await authService.initiateVerification(userId, 'SMS', context.toUpperCase())
+          console.log('Initiate verification response:', response)
+        } catch (initiateError) {
+          console.log('Initiate failed, trying resend:', initiateError.message)
+          const response = await authService.resendVerification(userId, 'SMS', context.toUpperCase())
+          console.log('Resend verification response:', response)
+        }
+      } else {
+        const response = await authService.resendVerification(userId, 'SMS', context.toUpperCase())
+        console.log('Resend verification response:', response)
+      }
       
       // Reset countdown to 2 minutes
       setCanResend(false)
       setCountdown(120)
       
-      // ✅ Show success feedback
       console.log('Verification code resent successfully')
       
     } catch (err) {
@@ -245,7 +309,7 @@ const SMSVerificationPage = () => {
     }
   }
 
-  // ✅ Enhanced change to email handler
+  // Enhanced change to email handler
   const handleChangeToEmail = async () => {
     if (loading) return
 
@@ -280,47 +344,50 @@ const SMSVerificationPage = () => {
     }
   }
 
-
   if (!userId) {
     return null // Will redirect via useEffect
   }
 
-  // Don't show "use email instead" option for signup flow
-  const showChangeToEmail = context !== 'SIGNUP' && email
+  // Show verification type switching for LOGIN and PASSWORD_RESET flows only
+  const showChangeToEmail = (context === 'LOGIN' || context === 'PASSWORD_RESET') && email
 
   return (
-    <>
+    <div className="verification-page">
       <FloatingElements />
-      <ThemeToggle />
+      <TopNav />
 
       <div className="container">
-        <LogoSection />
-
         <div className="form-box">
+          <div className="form-logo-section">
+            <img src={logo} alt="PathIGAI Logo" />
+            <h3>PATHIGAI</h3>
+          </div>
+          
           <h2>SMS Verification</h2>
           <p className="subtitle">
             A one-time password has been sent to<br />
             {maskedPhone || '+91 **********'}
             {showChangeToEmail && (
-              <button 
+              <span 
                 onClick={handleChangeToEmail}
                 className="change-link"
-                disabled={loading}
                 style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  color: '#007bff', 
-                  textDecoration: 'underline',
+                  fontSize: '13px',
+                  color: '#8FB7C6',
+                  textDecoration: 'none',
                   cursor: 'pointer',
-                  marginLeft: '8px'
+                  marginLeft: '8px',
+                  transition: 'text-decoration 0.2s ease'
                 }}
+                onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
+                onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
               >
-                use email instead
-              </button>
+                verify using email
+              </span>
             )}
           </p>
 
-          {/* ✅ Enhanced development mode indicator */}
+          {/* Enhanced development mode indicator */}
           {developmentMode && (
             <div style={{
               background: 'linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%)',
@@ -342,7 +409,7 @@ const SMSVerificationPage = () => {
             </div>
           )}
 
-          {/* ✅ Show verification attempts warning */}
+          {/* Show verification attempts warning */}
           {verificationAttempts > 0 && verificationAttempts < 3 && (
             <div style={{
               background: '#fff3cd',
@@ -366,8 +433,7 @@ const SMSVerificationPage = () => {
             disabled={verificationAttempts >= 5}
           />
 
-
-          {/* ✅ Enhanced error display */}
+          {/* Enhanced error display */}
           {error && (
             <div style={{ 
               color: '#dc3545',
@@ -384,33 +450,44 @@ const SMSVerificationPage = () => {
           )}
 
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            {canResend ? (
-              <button
+            {(canResend || isTemporaryPassword) ? (
+              <span
                 onClick={handleResend}
-                disabled={resendLoading || verificationAttempts >= 5}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  color: verificationAttempts >= 5 ? '#6c757d' : '#007bff',
-                  textDecoration: 'underline',
-                  cursor: verificationAttempts >= 5 ? 'not-allowed' : 'pointer'
+                  fontSize: '13px',
+                  color: (resendLoading || verificationAttempts >= 5) ? '#6c757d' : '#8FB7C6',
+                  textDecoration: 'none',
+                  cursor: (resendLoading || verificationAttempts >= 5) ? 'not-allowed' : 'pointer',
+                  transition: 'text-decoration 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (!resendLoading && verificationAttempts < 5) {
+                    e.target.style.textDecoration = 'underline'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.textDecoration = 'none'
                 }}
               >
                 {resendLoading ? 'Sending...' : 
-                 verificationAttempts >= 5 ? 'Maximum attempts reached' : 'Resend Code'}
-              </button>
+                 verificationAttempts >= 5 ? 'Maximum attempts reached' : 
+                 isTemporaryPassword ? 'Request code' : 'Resend OTP'}
+              </span>
             ) : (
-              <span style={{ color: '#666', fontSize: '14px' }}>
-                Resend code in {formatTime(countdown)}
+              <span style={{ 
+                color: '#666', 
+                fontSize: '13px',
+                textDecoration: 'none'
+              }}>
+                Resend OTP in {formatTime(countdown)} mins
               </span>
             )}
           </div>
-
         </div>
       </div>
 
       <Footer />
-    </>
+    </div>
   )
 }
 

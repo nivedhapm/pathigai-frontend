@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
 import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
 import LogoSection from '../../../components/common/LogoSection/LogoSection'
@@ -10,9 +10,13 @@ import authService from '../../../shared/services/authService'
 
 const LoginPage = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  
+  // Check if user just completed password reset
+  const { passwordResetComplete, email: resetEmail } = location.state || {}
   
   const [formData, setFormData] = useState({
-    email: '',
+    email: resetEmail || '', // Pre-fill email if coming from reset
     password: ''
   })
   const [loading, setLoading] = useState(false)
@@ -25,6 +29,9 @@ const LoginPage = () => {
       ...prev,
       [id]: value
     }))
+    if (error) {
+      setError('')
+    }
   }
 
   const handlePasswordChange = (e) => {
@@ -32,6 +39,9 @@ const LoginPage = () => {
       ...prev,
       password: e.target.value
     }))
+    if (error) {
+      setError('')
+    }
   }
 
   const handleRecaptchaChange = (token) => {
@@ -47,29 +57,89 @@ const LoginPage = () => {
       return
     }
 
+    if (!recaptchaToken) {
+      setError('Please complete the reCAPTCHA verification')
+      return
+    }
+
     try {
       setLoading(true)
       
       // Step 1: Authenticate credentials
       const authResponse = await authService.login({
         ...formData,
-        recaptchaToken
+        recaptchaToken,
+        passwordResetComplete // Include flag to inform backend
       })
 
-      // Navigate to verification page
-      navigate('/sms-verification', {
-        state: {
-          userId: authResponse.userId,
-          email: formData.email,
-          phone: authResponse.phone,
-          maskedPhone: authService.maskPhone(authResponse.phone),
-          maskedEmail: authService.maskEmail(formData.email),
-          nextStep: authResponse.nextStep,
-          context: 'LOGIN',
-          isTemporaryPassword: authResponse.temporaryPassword,
-          fullName: authResponse.fullName
+      console.log('Login response received:', authResponse)
+
+      // Clear password reset state after use
+      if (passwordResetComplete) {
+        navigate(location.pathname, { replace: true, state: {} })
+      }
+
+      // Handle different next steps based on backend response
+      if (authResponse.nextStep === 'LOGIN_COMPLETE' || authResponse.nextStep === 'VERIFICATION_NOT_REQUIRED') {
+        // User doesn't need verification - complete login directly
+        try {
+          const loginResponse = await authService.completeLogin(authResponse.userId)
+          if (loginResponse && (loginResponse.jwtToken || loginResponse.authToken)) {
+            alert('Successfully logged in!')
+            navigate('/dashboard', { replace: true })
+            return
+          }
+        } catch (error) {
+          console.error('Direct login completion failed:', error)
+          // Fall back to verification flow
         }
-      })
+      } else if (authResponse.nextStep === 'SMS_VERIFICATION_REQUIRED') {
+        // Temporary password or unverified users need SMS verification
+        navigate('/sms-verification', {
+          state: {
+            userId: authResponse.userId,
+            email: formData.email,
+            phone: authResponse.phone,
+            maskedPhone: authService.maskPhone(authResponse.phone),
+            maskedEmail: authService.maskEmail(formData.email),
+            nextStep: authResponse.nextStep,
+            context: 'LOGIN',
+            isTemporaryPassword: authResponse.temporaryPassword || authResponse.isTemporaryPassword,
+            fullName: authResponse.fullName
+          }
+        })
+        return
+      } else if (authResponse.nextStep === 'EMAIL_VERIFICATION_REQUIRED') {
+        // Some users might need email verification
+        navigate('/email-verification', {
+          state: {
+            userId: authResponse.userId,
+            email: formData.email,
+            phone: authResponse.phone,
+            maskedPhone: authService.maskPhone(authResponse.phone),
+            maskedEmail: authService.maskEmail(formData.email),
+            nextStep: authResponse.nextStep,
+            context: 'LOGIN',
+            isTemporaryPassword: authResponse.temporaryPassword || authResponse.isTemporaryPassword,
+            fullName: authResponse.fullName
+          }
+        })
+        return
+      }
+
+      // Default fallback - if nextStep is unclear, try to complete login
+      try {
+        const loginResponse = await authService.completeLogin(authResponse.userId)
+        if (loginResponse && (loginResponse.jwtToken || loginResponse.authToken)) {
+          alert('Successfully logged in!')
+          navigate('/dashboard', { replace: true })
+        } else {
+          setError('Login completion failed. Please contact support.')
+        }
+      } catch (error) {
+        console.error('Fallback login completion failed:', error)
+        setError('Login failed. Please try again or contact support.')
+      }
 
     } catch (err) {
       console.error('Login error:', err)
@@ -112,10 +182,12 @@ const LoginPage = () => {
             />
 
             <div className="forgot">
-              <Link to="/reset-password">Forgot Password?</Link>
+              <Link to="/forgot-password">Forgot Password?</Link>
             </div>
 
-            <Recaptcha onVerify={handleRecaptchaChange} />
+            <div style={{ marginBottom: '10px' }}>
+              <Recaptcha onVerify={handleRecaptchaChange} />
+            </div>
 
             {error && (
               <div style={{ color: '#ff4d4f', marginTop: '8px' }}>{error}</div>

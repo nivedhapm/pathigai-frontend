@@ -119,7 +119,7 @@ const SignupPage = () => {
   }
 
   return (
-    <>
+    <div className="signup-page">
       <FloatingElements />
       <ThemeToggle />
 
@@ -192,7 +192,9 @@ const SignupPage = () => {
               <label htmlFor="terms">I agree to the <a href="#">Terms & Conditions</a></label>
             </div>
 
-            <Recaptcha onVerify={handleRecaptchaChange} />
+            <div style={{ marginBottom: '10px' }}>
+              <Recaptcha onVerify={handleRecaptchaChange} />
+            </div>
 
             {error && (
               <div style={{ color: '#ff4d4f', marginTop: '8px' }}>{error}</div>
@@ -210,7 +212,7 @@ const SignupPage = () => {
       </main>
 
       <Footer />
-    </>
+    </div>
   )
 }
 

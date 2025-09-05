@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
 import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
+import TopNav from '../../../components/common/TopNav/TopNav'
 import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
 import OTPInput from '../../../components/ui/OTPInput/OTPInput'
 import authService from '../../../shared/services/authService'
+import logo from '../../../assets/logo.svg'
 
 const EmailVerificationPage = () => {
   const location = useLocation()
@@ -28,7 +30,6 @@ const EmailVerificationPage = () => {
   const [resendLoading, setResendLoading] = useState(false)
   const [canResend, setCanResend] = useState(false)
   const [countdown, setCountdown] = useState(120) // 2 minutes
-  const [emailSent, setEmailSent] = useState(false) // Track if email was sent
 
   // Countdown timer for resend
   useEffect(() => {
@@ -46,9 +47,6 @@ const EmailVerificationPage = () => {
       navigate('/login')
     }
   }, [userId, navigate])
-
-  // Backend automatically sends email OTP when SMS verification completes
-  // No need to send from frontend
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60)
@@ -108,7 +106,8 @@ const EmailVerificationPage = () => {
           const loginResponse = await authService.completeLogin(userId)
           
           if (loginResponse.jwtToken) {
-            // Login successful - redirect to dashboard
+            // Login successful - show popup and redirect to dashboard
+            alert('Successfully logged in.')
             navigate('/dashboard')
           }
         }
@@ -185,68 +184,51 @@ const EmailVerificationPage = () => {
     return null // Will redirect via useEffect
   }
 
-  // Don't show "use SMS instead" option for signup flow
-  const showChangeToSMS = context !== 'SIGNUP'
+  // Show verification type switching for LOGIN and PASSWORD_RESET flows only
+  const showChangeToSMS = (context === 'LOGIN' || context === 'PASSWORD_RESET') && phone
 
   return (
-    <>
+    <div className="verification-page">
       <FloatingElements />
-      <ThemeToggle />
+      <TopNav />
 
       <div className="container">
-        <LogoSection />
-
         <div className="form-box">
+          <div className="form-logo-section">
+            <img src={logo} alt="PathIGAI Logo" />
+            <h3>PATHIGAI</h3>
+          </div>
+          
           <h2>Email Verification</h2>
           <p className="subtitle">
             A one-time password has been sent to<br />
             {maskedEmail || email || 'your email'}
             {showChangeToSMS && (
-              <button 
+              <span 
                 onClick={handleChangeToSMS}
                 className="change-link"
-                disabled={loading}
                 style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  color: '#007bff', 
-                  textDecoration: 'underline',
+                  fontSize: '13px',
+                  color: '#8FB7C6',
+                  textDecoration: 'none',
                   cursor: 'pointer',
-                  marginLeft: '8px'
+                  marginLeft: '8px',
+                  transition: 'text-decoration 0.2s ease'
                 }}
+                onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
+                onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
               >
-                use SMS instead
-              </button>
+                verify using mobile
+              </span>
             )}
           </p>
 
-          {/* Show OTP input directly - no loading state needed */}
           <OTPInput 
             length={6}
             onComplete={handleOTPComplete}
             onVerify={handleVerify}
             loading={loading}
           />
-
-          {showChangeToSMS && (
-            <div style={{ textAlign: 'center', marginTop: '15px', marginBottom: '10px' }}>
-              <button
-                onClick={handleChangeToSMS}
-                disabled={loading}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#007bff',
-                  textDecoration: 'underline',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontFamily: 'inherit'
-                }}
-              >
-                Verify with SMS
-              </button>
-            </div>
-          )}
 
           {error && (
             <div style={{ color: '#ff4d4f', marginTop: '16px', textAlign: 'center' }}>
@@ -256,22 +238,33 @@ const EmailVerificationPage = () => {
 
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             {canResend ? (
-              <button
+              <span
                 onClick={handleResend}
-                disabled={resendLoading}
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#007bff',
-                  textDecoration: 'underline',
-                  cursor: 'pointer'
+                  fontSize: '13px',
+                  color: resendLoading ? '#6c757d' : '#8FB7C6',
+                  textDecoration: 'none',
+                  cursor: resendLoading ? 'not-allowed' : 'pointer',
+                  transition: 'text-decoration 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (!resendLoading) {
+                    e.target.style.textDecoration = 'underline'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.textDecoration = 'none'
                 }}
               >
-                {resendLoading ? 'Sending...' : 'Resend Code'}
-              </button>
+                {resendLoading ? 'Sending...' : 'Resend OTP'}
+              </span>
             ) : (
-              <span style={{ color: '#666' }}>
-                Resend code in {formatTime(countdown)}
+              <span style={{ 
+                color: '#666', 
+                fontSize: '13px',
+                textDecoration: 'none'
+              }}>
+                Resend OTP in {formatTime(countdown)} mins
               </span>
             )}
           </div>
@@ -279,7 +272,7 @@ const EmailVerificationPage = () => {
       </div>
 
       <Footer />
-    </>
+    </div>
   )
 }
 

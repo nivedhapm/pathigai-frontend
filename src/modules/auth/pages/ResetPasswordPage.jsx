@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
 import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
+import TopNav from '../../../components/common/TopNav/TopNav'
 import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
 import PasswordInput from '../../../components/ui/PasswordInput/PasswordInput'
+import PasswordStrengthIndicator from '../../../components/ui/PasswordStrengthIndicator/PasswordStrengthIndicator'
 import authService from '../../../shared/services/authService'
+import logo from '../../../assets/logo.svg'
 
 const ResetPasswordPage = () => {
   const location = useLocation()
@@ -19,9 +22,7 @@ const ResetPasswordPage = () => {
     isPasswordReset = false 
   } = location.state || {}
 
-  const [step, setStep] = useState(isTemporaryPassword || isPasswordReset ? 'reset' : 'initiate')
   const [formData, setFormData] = useState({
-    email: email || '',
     password: '',
     confirmPassword: ''
   })
@@ -34,6 +35,9 @@ const ResetPasswordPage = () => {
       ...prev,
       [id]: value
     }))
+    if (error) {
+      setError('')
+    }
   }
 
   const handlePasswordChange = (e) => {
@@ -41,6 +45,9 @@ const ResetPasswordPage = () => {
       ...prev,
       password: e.target.value
     }))
+    if (error) {
+      setError('')
+    }
   }
 
   const handleConfirmPasswordChange = (e) => {
@@ -48,39 +55,17 @@ const ResetPasswordPage = () => {
       ...prev,
       confirmPassword: e.target.value
     }))
+    if (error) {
+      setError('')
+    }
   }
 
-  const handleInitiateReset = async (e) => {
-    e.preventDefault()
-    setError('')
-
-    if (!formData.email) {
-      setError('Please enter your email address')
-      return
+  const validatePassword = (password) => {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long'
     }
-
-    try {
-      setLoading(true)
-      
-      const response = await authService.forgotPassword(formData.email)
-      
-      // Navigate to SMS verification for password reset
-      navigate('/sms-verification', {
-        state: {
-          userId: response.userId,
-          email: formData.email,
-          maskedPhone: response.maskedPhone,
-          context: 'PASSWORD_RESET',
-          fullName: response.fullName
-        }
-      })
-
-    } catch (err) {
-      console.error('Password reset initiation error:', err)
-      setError(err.message || 'Failed to initiate password reset. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    // Add more password validation rules here if needed
+    return null
   }
 
   const handleResetPassword = async (e) => {
@@ -97,8 +82,9 @@ const ResetPasswordPage = () => {
       return
     }
 
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long')
+    const passwordError = validatePassword(formData.password)
+    if (passwordError) {
+      setError(passwordError)
       return
     }
 
@@ -107,17 +93,28 @@ const ResetPasswordPage = () => {
 
       const resetData = {
         userId,
-        newPassword: formData.password
+        newPassword: formData.password,
+        confirmPassword: formData.confirmPassword
       }
 
       if (isTemporaryPassword) {
         await authService.resetTemporaryPassword(resetData)
         alert('Password reset successful! Please login with your new password.')
-        navigate('/login')
+        navigate('/login', { 
+          state: { 
+            passwordResetComplete: true,
+            email: email 
+          }
+        })
       } else {
         await authService.resetPassword(resetData)
         alert('Password reset successful! Please login with your new password.')
-        navigate('/login')
+        navigate('/login', { 
+          state: { 
+            passwordResetComplete: true,
+            email: email 
+          }
+        })
       }
 
     } catch (err) {
@@ -130,140 +127,82 @@ const ResetPasswordPage = () => {
 
   // Redirect if trying to reset without proper state
   useEffect(() => {
-    if (step === 'reset' && !userId) {
-      setStep('initiate')
+    if (!userId) {
+      navigate('/login')
     }
-  }, [step, userId])
+  }, [userId, navigate])
+
+  if (!userId) {
+    return null // Will redirect via useEffect
+  }
 
   return (
-    <>
+    <div className="verification-page">
       <FloatingElements />
-      <ThemeToggle />
+      <TopNav />
 
       <div className="container">
-        <LogoSection />
-
         <div className="form-box">
-          {step === 'initiate' ? (
-            <>
-              <h2>Reset Password</h2>
-              <p className="subtitle">
-                Enter your email address and we'll send you a verification code
-              </p>
+          <div className="form-logo-section">
+            <img src={logo} alt="PathIGAI Logo" />
+            <h3>PATHIGAI</h3>
+          </div>
+          
+          <h2>
+            {isTemporaryPassword ? 'Set New Password' : 'Reset Password'}
+          </h2>
+          <p className="subtitle">
+            {isTemporaryPassword 
+              ? 'Please set a new password for your account'
+              : 'Enter your new password'
+            }
+          </p>
 
-              <form onSubmit={handleInitiateReset}>
-                <label htmlFor="email">Email*</label>
-                <input
-                  type="email"
-                  id="email"
-                  placeholder="person1@zoho.com"
-                  required
-                  value={formData.email}
-                  onChange={handleInputChange}
-                />
+          <form onSubmit={handleResetPassword}>
+            <label htmlFor="password">New Password*</label>
+            <PasswordInput
+              id="password"
+              placeholder="* * * * * * * *"
+              required
+              value={formData.password}
+              onChange={handlePasswordChange}
+            />
+            
+            <PasswordStrengthIndicator password={formData.password} />
 
-                {error && (
-                  <div style={{ color: '#ff4d4f', marginTop: '8px' }}>
-                    {error}
-                  </div>
-                )}
+            <label htmlFor="confirmPassword">Confirm New Password*</label>
+            <PasswordInput
+              id="confirmPassword"
+              placeholder="* * * * * * * *"
+              required
+              value={formData.confirmPassword}
+              onChange={handleConfirmPasswordChange}
+            />
 
-                <button type="submit" disabled={loading}>
-                  {loading ? 'Sending Code...' : 'Send Verification Code'}
-                </button>
+            <div style={{ 
+              fontSize: '12px', 
+              color: '#666', 
+              marginTop: '8px',
+              marginBottom: '16px'
+            }}>
+              Password must be at least 8 characters long
+            </div>
 
-                <div className="login-link">
-                  Remember your password? <a href="/login">Login</a>
-                </div>
-              </form>
-            </>
-          ) : (
-            <>
-              <h2>
-                {isTemporaryPassword ? 'Set New Password' : 'Reset Password'}
-              </h2>
-              <p className="subtitle">
-                {isTemporaryPassword 
-                  ? 'Please set a new password for your account'
-                  : 'Enter your new password'
-                }
-              </p>
+            {error && (
+              <div style={{ color: '#ff4d4f', marginTop: '8px' }}>
+                {error}
+              </div>
+            )}
 
-              {fullName && (
-                <div style={{ 
-                  background: '#f0f8ff', 
-                  padding: '15px', 
-                  borderRadius: '8px', 
-                  marginBottom: '20px',
-                  border: '1px solid #e1f5fe'
-                }}>
-                  <p style={{ margin: 0, fontSize: '14px', color: '#1565c0' }}>
-                    <strong>Account:</strong> {fullName} ({email})
-                  </p>
-                </div>
-              )}
-
-              <form onSubmit={handleResetPassword}>
-                <label htmlFor="password">New Password*</label>
-                <PasswordInput
-                  id="password"
-                  placeholder="* * * * * * * *"
-                  required
-                  value={formData.password}
-                  onChange={handlePasswordChange}
-                />
-
-                <label htmlFor="confirmPassword">Confirm New Password*</label>
-                <PasswordInput
-                  id="confirmPassword"
-                  placeholder="* * * * * * * *"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleConfirmPasswordChange}
-                />
-
-                <div style={{ 
-                  fontSize: '12px', 
-                  color: '#666', 
-                  marginTop: '8px',
-                  marginBottom: '16px'
-                }}>
-                  Password must be at least 8 characters long
-                </div>
-
-                {error && (
-                  <div style={{ color: '#ff4d4f', marginTop: '8px' }}>
-                    {error}
-                  </div>
-                )}
-
-                <button type="submit" disabled={loading}>
-                  {loading ? 'Updating Password...' : 'Update Password'}
-                </button>
-
-                <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/login')}
-                    style={{
-                      background: 'none',
-                      border: '1px solid #ddd',
-                      padding: '8px 16px',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </>
-          )}
+            <button type="submit" disabled={loading}>
+              {loading ? 'Updating Password...' : 'Update Password'}
+            </button>
+          </form>
         </div>
       </div>
 
       <Footer />
-    </>
+    </div>
   )
 }
 

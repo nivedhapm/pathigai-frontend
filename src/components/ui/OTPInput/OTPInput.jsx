@@ -155,7 +155,9 @@ const OTPInput = ({
         display: 'flex', 
         gap: '8px', 
         justifyContent: 'center',
-        marginBottom: '20px'
+        marginBottom: '20px',
+        transform: window.innerWidth <= 768 ? 'scale(0.8)' : 'scale(1)',
+        transformOrigin: 'center'
       }}>
         {otp.map((digit, index) => (
           <input
@@ -181,112 +183,59 @@ const OTPInput = ({
               fontWeight: '600',
               border: `2px solid ${
                 disabled ? '#e9ecef' :
-                focusedIndex === index ? '#007bff' :
-                digit ? '#28a745' : '#ced4da'
+                focusedIndex === index ? '#8FB7C6' :
+                digit ? '#6BA3B5' : '#ced4da'
               }`,
               borderRadius: '8px',
               backgroundColor: disabled ? '#f8f9fa' : '#ffffff',
               color: disabled ? '#6c757d' : '#212529',
               cursor: disabled ? 'not-allowed' : 'text',
               transition: 'all 0.2s ease',
-              outline: 'none'
+              outline: 'none',
+              boxShadow: `0 2px 4px ${
+                disabled ? 'rgba(0,0,0,0.1)' :
+                focusedIndex === index ? 'rgba(143, 183, 198, 0.3)' :
+                digit ? 'rgba(107, 163, 181, 0.2)' : 'rgba(0,0,0,0.1)'
+              }`
             }}
           />
         ))}
       </div>
 
-      <div style={{ 
-        display: 'flex', 
-        gap: '8px',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}>
-        {/* Back Button - takes 5% space */}
-        {showBackButton && onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            disabled={loading}
-            style={{
-              width: '48px',
-              height: '48px',
-              minWidth: '48px',
-              background: '#8FB7C6',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '18px',
-              fontWeight: '600',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(143, 183, 198, 0.4)',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            ←
-          </button>
+      {/* Verify Button - full width */}
+      <button 
+        type="submit" 
+        disabled={!isComplete || loading || submitted || disabled}
+        style={{
+          width: '100%',
+          backgroundColor: (!isComplete || loading || submitted || disabled) ? '#6c757d' : '#8FB7C6',
+          color: '#ffffff',
+          border: 'none',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          fontSize: '16px',
+          fontWeight: '500',
+          cursor: (!isComplete || loading || submitted || disabled) ? 'not-allowed' : 'pointer',
+          transition: 'all 0.2s ease',
+          minHeight: '48px'
+        }}
+      >
+        {loading ? (
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+            <span style={{
+              width: '16px',
+              height: '16px',
+              border: '2px solid #ffffff',
+              borderTop: '2px solid transparent',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }}></span>
+            Verifying...
+          </span>
+        ) : (
+          'Verify'
         )}
-
-        {/* Verify Button - takes remaining space */}
-        <button 
-          type="submit" 
-          disabled={!isComplete || loading || submitted || disabled}
-          style={{
-            flex: 1,
-            backgroundColor: (!isComplete || loading || submitted || disabled) ? '#6c757d' : '#007bff',
-            color: '#ffffff',
-            border: 'none',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            fontSize: '16px',
-            fontWeight: '500',
-            cursor: (!isComplete || loading || submitted || disabled) ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s ease',
-            minHeight: '48px'
-          }}
-        >
-          {loading ? (
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <span style={{
-                width: '16px',
-                height: '16px',
-                border: '2px solid #ffffff',
-                borderTop: '2px solid transparent',
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite'
-              }}></span>
-              Verifying...
-            </span>
-          ) : (
-            'Verify'
-          )}
-        </button>
-      </div>
-
-      {/* Clear button - only show when no back button is present */}
-      {!showBackButton && (isComplete || otp.some(digit => digit !== '')) && !loading && (
-        <div style={{ textAlign: 'center', marginTop: '10px' }}>
-          <button
-            type="button"
-            onClick={clearOTP}
-            disabled={disabled}
-            style={{
-              background: 'none',
-              border: '1px solid #dc3545',
-              color: '#dc3545',
-              padding: '8px 16px',
-              borderRadius: '6px',
-              fontSize: '14px',
-              cursor: disabled ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            Clear
-          </button>
-        </div>
-      )}
+      </button>
 
       <style jsx>{`
         @keyframes spin {

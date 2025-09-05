@@ -109,16 +109,54 @@ class AuthService {
 
   async resendVerification(userId, verificationType, context) {
     try {
+      console.log('Calling resend verification API:', {
+        endpoint: `/verification/resend?userId=${userId}&verificationType=${verificationType}&context=${context}`,
+        userId,
+        verificationType,
+        context
+      })
+      
       const response = await apiService.post(
         `/verification/resend?userId=${userId}&verificationType=${verificationType}&context=${context}`
       )
+      console.log('Resend verification API response:', response)
       return response // ✅ Fixed: removed .data
     } catch (error) {
       console.error('Resend verification failed:', {
         userId,
         verificationType,
         context,
-        error: error.message
+        error: error.message,
+        fullError: error
+      })
+      throw error
+    }
+  }
+
+  // New method specifically for initiating verification for temporary password users
+  async initiateVerification(userId, verificationType, context) {
+    try {
+      console.log('Calling initiate verification API:', {
+        endpoint: `/verification/initiate`,
+        userId,
+        verificationType,
+        context
+      })
+      
+      const response = await apiService.post('/verification/initiate', {
+        userId,
+        verificationType,
+        context
+      })
+      console.log('Initiate verification API response:', response)
+      return response
+    } catch (error) {
+      console.error('Initiate verification failed:', {
+        userId,
+        verificationType,
+        context,
+        error: error.message,
+        fullError: error
       })
       throw error
     }

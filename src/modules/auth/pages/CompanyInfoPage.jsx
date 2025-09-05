@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
 import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
+import TopNav from '../../../components/common/TopNav/TopNav'
 import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
 import authService from '../../../shared/services/authService'
+import logo from '../../../assets/logo.svg'
 
 const CompanyInfoPage = () => {
   const location = useLocation()
@@ -69,30 +71,22 @@ const CompanyInfoPage = () => {
   }
 
   return (
-    <>
+    <div className="verification-page company-info-page">
       <FloatingElements />
-      <ThemeToggle />
+      <TopNav />
 
       <div className="container">
-        <LogoSection />
-
         <div className="form-box">
+          <div className="form-logo-section">
+            <img src={logo} alt="PathIGAI Logo" />
+            <h3>PATHIGAI</h3>
+          </div>
+          
           <h2>Company Information</h2>
           <p className="subtitle">
             Complete your profile by adding company details
           </p>
 
-          <div style={{ 
-            background: '#f0f8ff', 
-            padding: '15px', 
-            borderRadius: '8px', 
-            marginBottom: '20px',
-            border: '1px solid #e1f5fe'
-          }}>
-            <p style={{ margin: 0, fontSize: '14px', color: '#1565c0' }}>
-              <strong>Account:</strong> {fullName} ({email})
-            </p>
-          </div>
 
           <form onSubmit={handleSubmit}>
             <label htmlFor="companyName">Company Name*</label>
@@ -120,13 +114,15 @@ const CompanyInfoPage = () => {
               <option value="Manufacturing">Manufacturing</option>
               <option value="Retail">Retail</option>
               <option value="Retail">Fashion</option>
+              <option value="Retail">Construction</option>
+              <option value="Retail">IT</option>
               <option value="Consulting">Consulting</option>
               <option value="Non-Profit">Non-Profit</option>
               <option value="Government">Government</option>
               <option value="Other">Other</option>
             </select>
 
-            <label htmlFor="companyWebsite">Company Website</label>
+            <label htmlFor="companyWebsite">Company Website*</label>
             <input
               type="url"
               id="companyWebsite"
@@ -150,7 +146,7 @@ const CompanyInfoPage = () => {
       </div>
 
       <Footer />
-    </>
+    </div>
   )
 }
 
