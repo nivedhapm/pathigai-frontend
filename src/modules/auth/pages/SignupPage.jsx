@@ -135,7 +135,7 @@ const SignupPage = () => {
             <input
               type="text"
               id="fullName"
-              placeholder="John Doe"
+              placeholder="Enter your full name"
               required
               value={formData.fullName}
               onChange={handleInputChange}
@@ -145,7 +145,7 @@ const SignupPage = () => {
             <input
               type="email"
               id="email"
-              placeholder="person1@zoho.com"
+              placeholder="Enter your email address"
               required
               value={formData.email}
               onChange={handleInputChange}
@@ -155,7 +155,7 @@ const SignupPage = () => {
             <input
               type="tel"
               id="phone"
-              placeholder="+91 98765 43210"
+              placeholder="Enter your phone number"
               required
               value={formData.phone}
               onChange={handleInputChange}
@@ -164,7 +164,7 @@ const SignupPage = () => {
             <label htmlFor="password">Password*</label>
             <PasswordInput
               id="password"
-              placeholder="* * * * * * * *"
+              placeholder="Enter your password"
               required
               value={formData.password}
               onChange={handlePasswordChange}
@@ -175,7 +175,7 @@ const SignupPage = () => {
             <label htmlFor="confirmPassword">Confirm Password*</label>
             <PasswordInput
               id="confirmPassword"
-              placeholder="* * * * * * * *"
+              placeholder="Re-enter your password"
               required
               value={formData.confirmPassword}
               onChange={handleConfirmPasswordChange}

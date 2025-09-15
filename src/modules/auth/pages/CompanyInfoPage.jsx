@@ -93,7 +93,7 @@ const CompanyInfoPage = () => {
             <input
               type="text"
               id="companyName"
-              placeholder="Acme Corporation"
+              placeholder="Enter your company name"
               required
               value={formData.companyName}
               onChange={handleInputChange}

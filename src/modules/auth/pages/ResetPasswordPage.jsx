@@ -162,7 +162,7 @@ const ResetPasswordPage = () => {
             <label htmlFor="password">New Password*</label>
             <PasswordInput
               id="password"
-              placeholder="* * * * * * * *"
+              placeholder="Enter your new password"
               required
               value={formData.password}
               onChange={handlePasswordChange}
@@ -173,7 +173,7 @@ const ResetPasswordPage = () => {
             <label htmlFor="confirmPassword">Confirm New Password*</label>
             <PasswordInput
               id="confirmPassword"
-              placeholder="* * * * * * * *"
+              placeholder="Re-enter your new password"
               required
               value={formData.confirmPassword}
               onChange={handleConfirmPasswordChange}

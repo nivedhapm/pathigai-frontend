@@ -166,7 +166,7 @@ const LoginPage = () => {
             <input
               type="email"
               id="email"
-              placeholder="person1@zoho.com"
+              placeholder="Enter your email address"
               required
               value={formData.email}
               onChange={handleInputChange}
@@ -175,7 +175,7 @@ const LoginPage = () => {
             <label htmlFor="password">Password*</label>
             <PasswordInput
               id="password"
-              placeholder="* * * * * * * *"
+              placeholder="Enter your password"
               required
               value={formData.password}
               onChange={handlePasswordChange}

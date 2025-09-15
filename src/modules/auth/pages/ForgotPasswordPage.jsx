@@ -98,7 +98,7 @@ const ForgotPasswordPage = () => {
             <input
               type="email"
               id="email"
-              placeholder="person1@zoho.com"
+              placeholder="Enter your email address"
               required
               value={email}
               onChange={handleInputChange}
