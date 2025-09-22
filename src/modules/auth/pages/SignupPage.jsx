@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
 import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
@@ -11,6 +11,14 @@ import authService from '../../../shared/services/authService'
 
 const SignupPage = () => {
   const navigate = useNavigate()
+
+  // Add auth-page class to body for scrolling
+  useEffect(() => {
+    document.body.classList.add('auth-page')
+    return () => {
+      document.body.classList.remove('auth-page')
+    }
+  }, [])
 
   const [formData, setFormData] = useState({
     fullName: '',

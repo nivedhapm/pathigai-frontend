@@ -1,0 +1,25 @@
+.masonry-layout {
+  width: 100%;
+}
+
+.masonry-layout .masonry-item {
+  break-inside: avoid;
+  margin-bottom: 24px;
+  display: block;
+}
+
+/* Ensure smooth transitions */
+.masonry-layout .masonry-item .dashboard-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.masonry-layout .masonry-item .dashboard-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .masonry-layout .masonry-item {
+    margin-bottom: 16px;
+  }
+}

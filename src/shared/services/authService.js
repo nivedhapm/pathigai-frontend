@@ -17,6 +17,27 @@ class AuthService {
 
   async completeSignup(companyData) {
     const response = await apiService.post('/signup/complete', companyData)
+    // If backend returns tokens on signup completion, persist them to keep user signed in
+    if (response && response.jwtToken) {
+      this.setTokens({
+        authToken: response.jwtToken,
+        refreshToken: response.refreshToken
+      })
+      // Optionally persist basic user info if provided
+      try {
+        const userInfo = {
+          userId: response.userId,
+          email: response.email,
+          fullName: response.fullName
+        }
+        // Only set when at least one field exists
+        if (Object.values(userInfo).some(Boolean)) {
+          localStorage.setItem('user', JSON.stringify(userInfo))
+        }
+      } catch (_) {
+        // no-op if storage fails
+      }
+    }
     return response
   }
 
@@ -41,27 +62,72 @@ class AuthService {
       recaptchaToken: loginData.recaptchaToken
     }
     
+    console.log('🔑 Login API call:', {
+      endpoint: '/login/authenticate',
+      email: payload.email,
+      hasPassword: !!payload.password,
+      hasRecaptcha: !!payload.recaptchaToken
+    })
+    
     const response = await apiService.post('/login/authenticate', payload)
-    return response // ✅ Fixed: removed .data
+    
+    console.log('🔑 Login API response:', response)
+    
+    return response
   }
 
   async completeLogin(userId) {
-    const response = await apiService.post(`/login/complete?userId=${userId}`)
+    console.log('🔑 completeLogin called with userId:', userId)
     
-    // Store JWT token if login is successful
-    if (response.jwtToken) { // ✅ Fixed: removed .data
-      this.setTokens({
-        authToken: response.jwtToken,
-        refreshToken: response.refreshToken
-      })
-      localStorage.setItem('user', JSON.stringify({
-        userId: response.userId,
-        email: response.email,
-        fullName: response.fullName
-      }))
+    try {
+      const response = await apiService.post(`/login/complete?userId=${userId}`)
+      
+      console.log('🔑 Complete login API response:', response) // Debug log
+      
+      // Store JWT token if login is successful
+      if (response.jwtToken || response.authToken) { // ✅ Check both possible token names
+        const authToken = response.jwtToken || response.authToken
+        console.log('🔑 Tokens found in response, storing:', { // Debug log
+          authToken: authToken ? `${authToken.substring(0, 30)}...` : 'missing',
+          refreshToken: response.refreshToken ? `${response.refreshToken.substring(0, 30)}...` : 'missing'
+        })
+        
+        this.setTokens({
+          authToken: authToken,
+          refreshToken: response.refreshToken
+        })
+        
+        // Verify tokens were stored
+        const storedAuth = this.getAuthToken()
+        const storedRefresh = this.getRefreshToken()
+        console.log('🔑 Verification after storage:', {
+          authTokenStored: !!storedAuth,
+          refreshTokenStored: !!storedRefresh,
+          authTokenLength: storedAuth ? storedAuth.length : 0,
+          refreshTokenLength: storedRefresh ? storedRefresh.length : 0
+        })
+        
+        // Store user info
+        if (response.userId || response.email || response.fullName) {
+          const userInfo = {
+            userId: response.userId,
+            email: response.email,
+            fullName: response.fullName,
+            profile: response.profile // Add profile to user info
+          }
+          console.log('🔑 Storing user info:', userInfo) // Debug log
+          localStorage.setItem('user', JSON.stringify(userInfo))
+        }
+      } else {
+        console.error('🔑 ❌ No tokens received from login API. Response keys:', Object.keys(response)) // Debug log
+        console.error('🔑 ❌ Full response:', response)
+      }
+      
+      return response
+    } catch (error) {
+      console.error('🔑 ❌ completeLogin API call failed:', error)
+      throw error
     }
-    
-    return response // ✅ Fixed: removed .data
   }
 
   async resetTemporaryPassword(resetData) {
@@ -172,11 +238,38 @@ class AuthService {
   // ========== TOKEN MANAGEMENT ==========
   
   setTokens({ authToken, refreshToken }) {
-    if (authToken) localStorage.setItem('authToken', authToken)
-    if (refreshToken) localStorage.setItem('refreshToken', refreshToken)
+    console.log('🔑 setTokens called with:', { // Debug log
+      authToken: authToken ? `${authToken.substring(0, 20)}...` : 'null',
+      refreshToken: refreshToken ? `${refreshToken.substring(0, 20)}...` : 'null'
+    })
+    
+    try {
+      if (authToken) {
+        localStorage.setItem('authToken', authToken)
+        console.log('🔑 ✅ Auth token stored in localStorage')
+      }
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken)
+        console.log('🔑 ✅ Refresh token stored in localStorage')
+      }
+      
+      // Verify storage worked
+      const storedAuth = localStorage.getItem('authToken')
+      const storedRefresh = localStorage.getItem('refreshToken')
+      console.log('🔑 Token storage verification:', {
+        authTokenStored: !!storedAuth,
+        refreshTokenStored: !!storedRefresh,
+        authTokenMatches: storedAuth === authToken,
+        refreshTokenMatches: storedRefresh === refreshToken
+      })
+    } catch (error) {
+      console.error('🔑 ❌ Error storing tokens:', error)
+      throw error
+    }
   }
 
   clearTokens() {
+    console.log('clearTokens() called - removing auth and refresh tokens')
     localStorage.removeItem('authToken')
     localStorage.removeItem('refreshToken')
   }
@@ -187,6 +280,41 @@ class AuthService {
 
   getRefreshToken() {
     return localStorage.getItem('refreshToken')
+  }
+
+  // ✅ New method: Manual token refresh for activity-based session management
+  async refreshToken() {
+    const refreshToken = this.getRefreshToken()
+    if (!refreshToken) {
+      throw new Error('No refresh token available')
+    }
+
+    try {
+      const response = await apiService.post('/auth/refresh-token', {
+        refreshToken: refreshToken
+      })
+      
+      this.setTokens({
+        authToken: response.jwtToken || response.authToken,
+        refreshToken: response.refreshToken
+      })
+      
+      console.log('Token refreshed successfully')
+      return response
+    } catch (error) {
+      console.error('Token refresh failed:', error)
+      
+      // Only clear tokens for certain error types, not 403 (which is expected when refresh token is invalid)
+      // Let the API interceptor handle session expiration properly
+      if (error.response?.status === 401 || error.response?.status === 400) {
+        console.log('Clearing tokens due to authentication error:', error.response?.status)
+        this.clearAllUserData()
+      } else {
+        console.log('Not clearing tokens for error status:', error.response?.status, '- letting API interceptor handle it')
+      }
+      
+      throw error
+    }
   }
 
   // ========== UTILITY METHODS ==========
@@ -228,23 +356,139 @@ class AuthService {
 
   isAuthenticated() {
     const token = this.getAuthToken()
-    if (!token) return false
+    const refreshToken = this.getRefreshToken()
+    
+    // No token at all means not authenticated
+    if (!token) {
+      console.debug('No auth token found')
+      return false
+    }
     
     try {
-      // ✅ Enhanced: Check if token is expired (basic JWT check)
+      // Parse JWT payload to check expiration
       const payload = JSON.parse(atob(token.split('.')[1]))
       const currentTime = Date.now() / 1000
-      return payload.exp > currentTime
+      
+      // Add a 5-minute buffer to account for clock skew and network delays
+      const expirationBuffer = 5 * 60 // 5 minutes in seconds
+      const isExpired = payload.exp <= (currentTime + expirationBuffer)
+      
+      console.debug('Token validation:', {
+        expires: new Date(payload.exp * 1000).toISOString(),
+        currentTime: new Date(currentTime * 1000).toISOString(),
+        isExpired,
+        hasRefreshToken: !!refreshToken
+      })
+      
+      // If token is expired but we have a refresh token, consider user authenticated
+      // The API interceptor will handle token refresh automatically
+      if (isExpired && refreshToken) {
+        console.debug('Token expired but refresh token available')
+        return true
+      }
+      
+      // Token is valid and not expired
+      return !isExpired
     } catch (error) {
-      console.error('Invalid token format:', error)
+      console.error('Invalid token format or parsing error:', error)
+      // If we have a refresh token, try to use it even if main token is malformed
+      if (refreshToken) {
+        console.debug('Main token invalid but refresh token available')
+        return true
+      }
       return false
     }
   }
 
   // ✅ New method: Clear all user data
   clearAllUserData() {
+    console.log('clearAllUserData() called - clearing all authentication data')
     this.clearTokens()
     localStorage.removeItem('user')
+  }
+
+  // ✅ New method: Initialize authentication state on app startup
+  async initializeAuth() {
+    const token = this.getAuthToken()
+    const refreshToken = this.getRefreshToken()
+    
+    console.debug('Initializing auth state:', {
+      hasToken: !!token,
+      hasRefreshToken: !!refreshToken
+    })
+    
+    // If no tokens, user is not authenticated
+    if (!token && !refreshToken) {
+      console.debug('No tokens found, user not authenticated')
+      return false
+    }
+    
+    // If we have tokens, try to validate them
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        const currentTime = Date.now() / 1000
+        const isExpired = payload.exp <= currentTime
+        
+        console.debug('Token validation on init:', {
+          expires: new Date(payload.exp * 1000).toISOString(),
+          isExpired
+        })
+        
+        // If token is not expired, user is authenticated
+        if (!isExpired) {
+          console.debug('Valid token found, user authenticated')
+          return true
+        }
+      } catch (error) {
+        console.warn('Token parsing failed during init:', error)
+      }
+    }
+    
+    // If main token is expired/invalid but we have refresh token, try to refresh
+    if (refreshToken) {
+      try {
+        console.debug('Attempting token refresh on app init')
+        await this.refreshToken()
+        console.debug('Token refresh successful, user authenticated')
+        return true
+      } catch (error) {
+        console.warn('Token refresh failed during init:', error)
+        this.clearAllUserData()
+        return false
+      }
+    }
+    
+    // No valid authentication found
+    console.debug('No valid authentication found')
+    this.clearAllUserData()
+    return false
+  }
+
+  // ✅ New method: Check if user has valid session without network call
+  hasValidSession() {
+    const token = this.getAuthToken()
+    const refreshToken = this.getRefreshToken()
+    
+    // Must have at least one token
+    if (!token && !refreshToken) return false
+    
+    // If we have a refresh token, assume session is valid
+    // (API interceptor will handle refresh if needed)
+    if (refreshToken) return true
+    
+    // Check if main token is valid
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        const currentTime = Date.now() / 1000
+        return payload.exp > currentTime
+      } catch (error) {
+        return false
+      }
+    }
+    
+    return false
   }
 }
 

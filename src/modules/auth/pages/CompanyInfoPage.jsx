@@ -12,7 +12,7 @@ const CompanyInfoPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
   
-  const { userId, email, fullName } = location.state || {}
+  const { userId } = location.state || {}
 
   const [formData, setFormData] = useState({
     companyName: '',
@@ -49,12 +49,13 @@ const CompanyInfoPage = () => {
         companyWebsite: formData.companyWebsite.trim() || null
       }
 
-      const response = await authService.completeSignup(companyData)
+  await authService.completeSignup(companyData)
 
-      // Show success message and redirect to login
-      alert('Account created successfully! Welcome to Pathigai!')
-      // navigate('/login')
-      // Don't navigate to login page here anymore
+  // Show success message
+  alert('Account created successfully! Welcome to Pathigai!')
+  // If tokens are set, go straight to dashboard; else go to login
+  const hasToken = !!authService.getAuthToken()
+  navigate(hasToken ? '/dashboard' : '/login', { replace: true })
 
     } catch (err) {
       console.error('Company creation error:', err)

@@ -123,22 +123,29 @@ api.interceptors.response.use(
         setTokens({ authToken, refreshToken })
         api.defaults.headers.Authorization = 'Bearer ' + authToken
         processQueue(null, authToken)
+        
+        // Log successful refresh
+        console.log('Token refreshed successfully via interceptor')
         return api(originalRequest)
       } catch (refreshError) {
+        console.error('Token refresh failed:', refreshError)
         processQueue(refreshError, null)
         // ✅ Clear tokens and redirect to login
         localStorage.removeItem('authToken')
         localStorage.removeItem('refreshToken')
         localStorage.removeItem('user')
         
-        // ✅ Optional: Trigger a custom event for app-wide logout handling
-        window.dispatchEvent(new CustomEvent('auth:logout', {
-          detail: { reason: 'token_refresh_failed' }
-        }))
+        // ✅ Trigger logout for session management
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('auth:session-expired', {
+            detail: { reason: 'token_refresh_failed' }
+          }))
+        }
         
         return Promise.reject({
           message: 'Session expired. Please log in again.',
           isAuthError: true,
+          shouldRedirect: true,
           originalError: refreshError
         })
       } finally {

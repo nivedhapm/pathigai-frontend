@@ -1,0 +1,18 @@
+.file-uploader {
+	border: 2px dashed var(--divider-color, rgba(0,0,0,0.2));
+	padding: 24px;
+	text-align: center;
+	border-radius: 8px;
+	background: var(--bg-surface, #fff);
+	color: var(--text-secondary, #666);
+	cursor: pointer;
+}
+.file-uploader.drag-over {
+	border-color: var(--primary-main, #1976d2);
+	color: var(--primary-main, #1976d2);
+	background: var(--bg-elevated, #f5f5f5);
+}
+.file-uploader .hint {
+	font-size: 14px;
+}
+

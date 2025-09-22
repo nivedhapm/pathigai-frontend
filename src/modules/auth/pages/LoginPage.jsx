@@ -83,14 +83,41 @@ const LoginPage = () => {
       if (authResponse.nextStep === 'LOGIN_COMPLETE' || authResponse.nextStep === 'VERIFICATION_NOT_REQUIRED') {
         // User doesn't need verification - complete login directly
         try {
+          console.log('🔑 Attempting direct login completion for user:', authResponse.userId)
           const loginResponse = await authService.completeLogin(authResponse.userId)
+          console.log('🔑 Complete login response:', loginResponse)
+          
           if (loginResponse && (loginResponse.jwtToken || loginResponse.authToken)) {
+            console.log('🔑 Login successful - tokens received')
+            
+            // Add immediate verification
+            setTimeout(() => {
+              const storedAuth = authService.getAuthToken()
+              const storedRefresh = authService.getRefreshToken()
+              console.log('🔑 🔍 Post-login token check (1 second):', {
+                authToken: !!storedAuth,
+                refreshToken: !!storedRefresh
+              })
+            }, 1000)
+            
+            // Add another check after navigation
+            setTimeout(() => {
+              const storedAuth = authService.getAuthToken()
+              const storedRefresh = authService.getRefreshToken()
+              console.log('🔑 🔍 Post-navigation token check (3 seconds):', {
+                authToken: !!storedAuth,
+                refreshToken: !!storedRefresh
+              })
+            }, 3000)
+            
             alert('Successfully logged in!')
             navigate('/dashboard', { replace: true })
             return
+          } else {
+            console.warn('🔑 Login response received but no tokens found')
           }
         } catch (error) {
-          console.error('Direct login completion failed:', error)
+          console.error('🔑 Direct login completion failed:', error)
           // Fall back to verification flow
         }
       } else if (authResponse.nextStep === 'SMS_VERIFICATION_REQUIRED') {
@@ -129,8 +156,23 @@ const LoginPage = () => {
 
       // Default fallback - if nextStep is unclear, try to complete login
       try {
+        console.log('🔑 Fallback: attempting login completion for user:', authResponse.userId)
         const loginResponse = await authService.completeLogin(authResponse.userId)
+        console.log('🔑 Fallback login response:', loginResponse)
+        
         if (loginResponse && (loginResponse.jwtToken || loginResponse.authToken)) {
+          console.log('🔑 Fallback login successful - tokens received')
+          
+          // Add immediate verification for fallback path too
+          setTimeout(() => {
+            const storedAuth = authService.getAuthToken()
+            const storedRefresh = authService.getRefreshToken()
+            console.log('🔑 🔍 Fallback post-login token check (1 second):', {
+              authToken: !!storedAuth,
+              refreshToken: !!storedRefresh
+            })
+          }, 1000)
+          
           alert('Successfully logged in!')
           navigate('/dashboard', { replace: true })
         } else {

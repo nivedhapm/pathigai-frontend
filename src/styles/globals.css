@@ -9,20 +9,73 @@
 }
 
 body {
-  min-height: 100vh;
-  background: #fff;
+  height: 100vh;
+  /* hook to CSS variables while preserving defaults */
+  background: var(--bg-default, #fff);
   display: flex;
   flex-direction: column;
   transition: background 0.3s ease, color 0.3s ease;
-  color: #162D3A;
+  color: var(--text-primary, #162D3A);
   position: relative;
-  overflow-x: hidden;
+  overflow: hidden;
+}
+
+/* Allow scrolling for auth pages */
+body.auth-page {
+  overflow: auto;
+  height: auto;
+  min-height: 100vh;
 }
 
 /* Dark Mode */
 body.dark {
-  background: #1e1e1e;
-  color: #eaeaea;
+  background: var(--bg-default, #1e1e1e);
+  color: var(--text-primary, #eaeaea);
+}
+
+/* Expose minimal CSS variables used by ThemeContext; defaults align with existing palette */
+:root {
+  --primary-main: #8FB7C6;
+  --primary-dark: #7ba5b4;
+  --primary-color: #8FB7C6;
+  --primary-color-light: rgba(143, 183, 198, 0.1);
+  --secondary-main: #0077cc;
+  --success-main: #28a745;
+  --success-color: #28a745;
+  --warning-main: #ffc107;
+  --error-main: #dc3545;
+  --error-color: #dc3545;
+  --bg-default: #ffffff;
+  --bg-primary: #ffffff;
+  --bg-secondary: #EAF4FA;
+  --bg-surface: #eaf4fa;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --text-primary: #162D3A;
+  --text-secondary: #666666;
+  --border-color: #e0e0e0;
+  --border-hover: #bdbdbd;
+  --divider-color: #e0e0e0;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode variables */
+body.dark {
+  --primary-color: #8FB7C6;
+  --primary-color-light: rgba(143, 183, 198, 0.2);
+  --success-color: #4ade80;
+  --error-color: #f87171;
+  --bg-default: #212121;
+  --bg-primary: #ffffff;
+  --bg-secondary: #212121;
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  --text-primary: #eaeaea;
+  --text-secondary: #a1a1aa;
+  --border-color: #404040;
+  --border-hover: #525252;
+  --divider-color: #404040;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* Floating Background Elements */
@@ -78,21 +131,20 @@ body.dark .floating-element {
   background: rgba(255, 255, 255, 0.9);
   border: none;
   cursor: pointer;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   font-size: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .theme-toggle button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 
 body.dark .theme-toggle button {
@@ -111,7 +163,7 @@ body.dark .theme-toggle button {
   align-items: center;
   justify-content: space-between;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgb(255, 255, 255);
   backdrop-filter: blur(10px);
 }
 
@@ -135,7 +187,7 @@ body.dark .theme-toggle button {
 }
 
 body.dark .top-nav {
-  background: rgba(30, 30, 30, 0.95);
+  background: #212121;
 }
 
 /* Main Content Container - FIXED LAYOUT */
@@ -182,13 +234,13 @@ body.dark .top-nav {
 }
 
 .btn-primary {
-  background: #8FB7C6;
+  background: var(--primary-main, #8FB7C6);
   color: #fff;
   box-shadow: 0 4px 12px rgba(143, 183, 198, 0.4);
 }
 
 .btn-primary:hover {
-  background: #7ba5b4;
+  background: var(--primary-dark, #7ba5b4);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
 }
@@ -206,13 +258,13 @@ body.dark .btn-primary:hover {
 }
 
 .btn-secondary {
-  background: #8FB7C6;
+  background: var(--primary-main, #8FB7C6);
   color: #fff;
   box-shadow: 0 4px 12px rgba(143, 183, 198, 0.4);
 }
 
 .btn-secondary:hover {
-  background: #7ba5b4;
+  background: var(--primary-dark, #7ba5b4);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
 }
@@ -259,23 +311,34 @@ body.dark .btn-secondary:hover {
 /* Form Box */
 .form-box {
   flex: 1;
-  background: #eaf4fa;
+  background: var(--bg-surface, #eaf4fa);
   padding: 60px;
-  border: 1px solid #8FB7C6;
+  border: 1px solid var(--primary-main, #8FB7C6);
   border-radius: 12px;
   box-shadow: 0 16px 16px rgba(0, 0, 0, 0.1);
   max-width: 500px;
   width: 100%;
   max-height: fit-content;
   transition: background 0.3s ease, color 0.3s ease;
-  transform: scale(0.9);
+  transform: scale(0.8);
   transform-origin: center;
+}
+
+/* Login page specific form box - smaller to show footer */
+.login-page .form-box {
+  transform: scale(0.7);
+  padding: 40px;
 }
 
 /* Mobile scaling */
 @media (max-width: 768px) {
   .form-box {
     transform: scale(0.8);
+  }
+  
+  .login-page .form-box {
+    transform: scale(0.7);
+    padding: 30px;
   }
 }
 
@@ -292,10 +355,45 @@ body.dark .btn-secondary:hover {
     width: 600px;
     padding: 60px;
   }
+
+  .signup-page .form-box {
+    max-width: 550px;
+    width: 550px;
+    padding: 60px;
+    transform: scale(0.7);
+  }
+
+  .signup-page .logo-section {
+    position: fixed;
+    left: 20%;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+
+  .signup-page .logo-section img {
+    width: 24%;
+    height: 32%;
+    margin-bottom: 15px;
+  }
+
+  .signup-page .logo-section h1 {
+    font-size: 36px;
+  }
+
+  .signup-page .logo-section p {
+    font-size: 16px;
+  }
+  
+  .signup-page .container {
+    justify-content: flex-end;
+    padding-right: 0px;
+    padding-left: 35%;
+  }
 }
 
 body.dark .form-box {
-  background: #2b2b2b;
+  background: var(--bg-surface, #2b2b2b);
   border: 1px solid #738c9482;
   box-shadow: 0 10px 16px rgba(188, 188, 188, 0.1);
 }
@@ -359,7 +457,7 @@ body.dark .resend-timer {
 }
 
 .resend-link {
-  color: #0077cc;
+  color: var(--secondary-main, #0077cc);
   cursor: pointer;
   text-decoration: underline;
 }
@@ -376,7 +474,7 @@ body.dark .resend-link {
 
 /* Change Link */
 .change-link {
-  color: #0077cc;
+  color: var(--secondary-main, #0077cc);
   text-decoration: none;
   font-size: 12px;
   margin-left: 10px;
@@ -395,7 +493,7 @@ body.dark .change-link {
 .form-box select {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-color, #ccc);
   border-radius: 6px;
   margin-bottom: 15px;
   font-size: 14px;
@@ -405,7 +503,7 @@ body.dark .change-link {
 .form-box input:focus,
 .form-box select:focus {
   outline: none;
-  border-color: #0077cc;
+  border-color: var(--secondary-main, #0077cc);
   box-shadow: 0 0 0 3px rgba(0,119,204,0.1);
 }
 
@@ -603,6 +701,7 @@ body.dark .login-link a {
   font-size: 14px;
   color: #162D3A;
   transition: color 0.3s ease;
+  margin-top: -2px; /* Fine-tune vertical centering */
 }
 
 .toggle-password:hover {
@@ -620,8 +719,8 @@ body.dark .toggle-password:hover {
 /* Footer - FIXED TO STAY AT BOTTOM */
 footer {
   text-align: center;
-  padding: 15px;
-  font-size: 13px;
+  padding: 10px;
+  font-size: 10px;
   color: #162D3A;
   margin-top: auto; /* This pushes the footer to the bottom */
   flex-shrink: 0; /* Prevents footer from shrinking */
@@ -794,6 +893,44 @@ body.dark footer a {
   .company-info-page .form-box {
     max-width: 600px;
     width: 600px;
+  }
+}
+
+/* Large desktop specific sizing */
+@media (min-width: 1200px) {
+  .signup-page .form-box {
+    max-width: 550px;
+    width: 500px;
+    padding: 80px;
+    transform: scale(0.8);
+  }
+  
+  .signup-page .logo-section {
+    position: fixed;
+    left: 20%;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+
+  .signup-page .logo-section img {
+    width: 24%;
+    height: 32%;
+    margin-bottom: 15px;
+  }
+
+  .signup-page .logo-section h1 {
+    font-size: 36px;
+  }
+
+  .signup-page .logo-section p {
+    font-size: 16px;
+  }
+  
+  .signup-page .container {
+    justify-content: flex-end;
+    padding-right: 0px;
+    padding-left: 30%;
   }
 }
 
