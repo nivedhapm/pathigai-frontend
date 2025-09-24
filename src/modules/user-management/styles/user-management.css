@@ -1,0 +1,454 @@
+/* ==========================================
+   USER MANAGEMENT MODULE STYLES
+   ========================================== */
+
+/* User Management Container */
+.user-management-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Page Header */
+.user-management-header {
+  margin-bottom: 32px;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+
+.header-right {
+  flex-shrink: 0;
+  min-width: 300px;
+}
+
+.user-management-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+body.dark .user-management-title {
+  color: #ffffff;
+}
+
+.user-management-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+body.dark .user-management-subtitle {
+  color: #9ca3af;
+}
+
+/* Inline Search Styling */
+.search-input-container {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+  background: #ffffff;
+  color: #1f2937;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #8FB7C6;
+  box-shadow: 0 0 0 3px rgba(143, 183, 198, 0.2);
+}
+
+body.dark .search-input {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  color: #ffffff;
+}
+
+body.dark .search-input:focus {
+  border-color: #8FB7C6;
+  box-shadow: 0 0 0 3px rgba(143, 183, 198, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+}
+
+body.dark .search-icon {
+  color: #9ca3af;
+}
+
+/* Navigation Tabs */
+.user-management-nav {
+  background: #eaf4fa;
+  border: 1px solid #8FB7C6;
+  border-radius: 12px;
+  box-shadow: 0 16px 16px #0000001a;
+  padding: 8px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 4px;
+}
+
+body.dark .user-management-nav {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 16px 16px rgba(0, 0, 0, 0.3);
+}
+
+.nav-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+}
+
+.nav-tab:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+body.dark .nav-tab {
+  color: #9ca3af;
+}
+
+body.dark .nav-tab:hover {
+  background: #374151;
+  color: #ffffff;
+}
+
+.nav-tab.active {
+  color: #ffffff;
+  font-weight: 600;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(143, 183, 198, 0.4);
+  transition: all 0.3s ease;
+}
+
+/* Color-coded active states for each section */
+.nav-tab.active[data-section="add"] {
+  background: green; /* Green for Add Users */
+  box-shadow: 16px rgba(4, 65, 45, 0.305);
+}
+
+.nav-tab.active[data-section="manage"] {
+  background: blue; /* Blue for Manage Users */
+  box-shadow: 16px rgba(16, 45, 92, 0.5);
+}
+
+.nav-tab.active[data-section="delete"] {
+  background: #ef4444; /* Red for Delete Users */
+  box-shadow: 16px rgba(72, 16, 16, 0.5);
+}
+
+body.dark .nav-tab.active {
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(17, 17, 17, 0.6);
+}
+
+body.dark .nav-tab.active[data-section="add"] {
+  background: green;
+  box-shadow: 6px rgba(16, 185, 129, 0.3);
+}
+
+body.dark .nav-tab.active[data-section="manage"] {
+  background: blue;
+  box-shadow: 6px rgba(59, 130, 246, 0.3);
+}
+
+body.dark .nav-tab.active[data-section="delete"] {
+  background: red;
+  box-shadow: 6px rgba(239, 68, 68, 0.399);
+}
+
+.nav-tab-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Content Area */
+.user-management-content {
+  background: #eaf4fa;
+  border: 1px solid #8FB7C6;
+  border-radius: 12px;
+  box-shadow: 0 16px 16px #0000001a;
+  min-height: 600px;
+}
+
+body.dark .user-management-content {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 16px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Section Content */
+.section-content {
+  padding: 32px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+body.dark .section-title {
+  color: #ffffff;
+}
+
+.section-description {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0 0 32px 0;
+  line-height: 1.5;
+}
+
+body.dark .section-description {
+  color: #9ca3af;
+}
+
+/* ==========================================
+   COMMON HOVER EFFECTS
+   ========================================== */
+
+/* User management hover effects */
+.user-management-container *:hover {
+  transition: all 0.2s ease;
+}
+
+/* Interactive elements hover */
+.user-management-container button:hover,
+.user-management-container .clickable:hover,
+.user-management-container a:hover {
+  transform: translateY(-1px);
+  transition: all 0.3s ease;
+}
+
+/* Content hover effects */
+.user-management-container .interactive:hover {
+  background: rgba(143, 183, 198, 0.1);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+body.dark .user-management-container .interactive:hover {
+  background: rgba(143, 183, 198, 0.05);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+body.dark .empty-state {
+  color: #9ca3af;
+}
+
+.empty-state-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  opacity: 0.4;
+}
+
+.empty-state-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.empty-state-text {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .user-management-container {
+    padding: 16px;
+  }
+  
+  .user-management-nav {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .nav-tab {
+    justify-content: flex-start;
+  }
+  
+  .section-content {
+    padding: 20px;
+  }
+  
+  .user-management-title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-tab {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .nav-tab-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================
+   ADD USERS SECTION STYLES
+   ========================================== */
+
+/* Add Users Options */
+.add-users-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.option-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.option-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #3b82f6;
+}
+
+.option-header {
+  margin-bottom: 1rem;
+}
+
+.option-icon {
+  color: #3b82f6;
+  margin-bottom: 1rem;
+}
+
+.option-card h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.option-description {
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.option-card button {
+  width: 100%;
+  max-width: 200px;
+}
+
+.section-header-with-back {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.section-header-with-back h2 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-header-with-back button {
+  flex-shrink: 0;
+}
+
+/* Dark theme for add users options */
+body.dark .option-card {
+  background: #1a1a1a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+body.dark .option-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+  border-color: #666666;
+}
+
+body.dark .option-card h3 {
+  color: #ffffff;
+}
+
+body.dark .option-description {
+  color: #cccccc;
+}
+
+body.dark .section-header-with-back {
+  border-bottom-color: #333333;
+}
+
+body.dark .section-header-with-back h2 {
+  color: #ffffff;
+}

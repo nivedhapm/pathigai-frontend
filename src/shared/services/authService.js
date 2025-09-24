@@ -17,27 +17,6 @@ class AuthService {
 
   async completeSignup(companyData) {
     const response = await apiService.post('/signup/complete', companyData)
-    // If backend returns tokens on signup completion, persist them to keep user signed in
-    if (response && response.jwtToken) {
-      this.setTokens({
-        authToken: response.jwtToken,
-        refreshToken: response.refreshToken
-      })
-      // Optionally persist basic user info if provided
-      try {
-        const userInfo = {
-          userId: response.userId,
-          email: response.email,
-          fullName: response.fullName
-        }
-        // Only set when at least one field exists
-        if (Object.values(userInfo).some(Boolean)) {
-          localStorage.setItem('user', JSON.stringify(userInfo))
-        }
-      } catch (_) {
-        // no-op if storage fails
-      }
-    }
     return response
   }
 
@@ -62,72 +41,46 @@ class AuthService {
       recaptchaToken: loginData.recaptchaToken
     }
     
-    console.log('🔑 Login API call:', {
-      endpoint: '/login/authenticate',
-      email: payload.email,
-      hasPassword: !!payload.password,
-      hasRecaptcha: !!payload.recaptchaToken
-    })
-    
     const response = await apiService.post('/login/authenticate', payload)
-    
-    console.log('🔑 Login API response:', response)
-    
-    return response
+    return response // ✅ Fixed: removed .data
   }
 
   async completeLogin(userId) {
-    console.log('🔑 completeLogin called with userId:', userId)
+    const response = await apiService.post(`/login/complete?userId=${userId}`)
     
-    try {
-      const response = await apiService.post(`/login/complete?userId=${userId}`)
+    // Store JWT token if login is successful
+    if (response.jwtToken) { // ✅ Fixed: removed .data
+      this.setTokens({
+        authToken: response.jwtToken,
+        refreshToken: response.refreshToken
+      })
+      localStorage.setItem('user', JSON.stringify({
+        userId: response.userId,
+        email: response.email,
+        fullName: response.fullName
+      }))
       
-      console.log('🔑 Complete login API response:', response) // Debug log
-      
-      // Store JWT token if login is successful
-      if (response.jwtToken || response.authToken) { // ✅ Check both possible token names
-        const authToken = response.jwtToken || response.authToken
-        console.log('🔑 Tokens found in response, storing:', { // Debug log
-          authToken: authToken ? `${authToken.substring(0, 30)}...` : 'missing',
-          refreshToken: response.refreshToken ? `${response.refreshToken.substring(0, 30)}...` : 'missing'
+      // Initialize session management
+      if (typeof window !== 'undefined') {
+        import('./sessionService').then(({ default: sessionService }) => {
+          sessionService.initializeSession({
+            authToken: response.jwtToken,
+            refreshToken: response.refreshToken
+          })
         })
-        
-        this.setTokens({
-          authToken: authToken,
-          refreshToken: response.refreshToken
-        })
-        
-        // Verify tokens were stored
-        const storedAuth = this.getAuthToken()
-        const storedRefresh = this.getRefreshToken()
-        console.log('🔑 Verification after storage:', {
-          authTokenStored: !!storedAuth,
-          refreshTokenStored: !!storedRefresh,
-          authTokenLength: storedAuth ? storedAuth.length : 0,
-          refreshTokenLength: storedRefresh ? storedRefresh.length : 0
-        })
-        
-        // Store user info
-        if (response.userId || response.email || response.fullName) {
-          const userInfo = {
-            userId: response.userId,
-            email: response.email,
-            fullName: response.fullName,
-            profile: response.profile // Add profile to user info
-          }
-          console.log('🔑 Storing user info:', userInfo) // Debug log
-          localStorage.setItem('user', JSON.stringify(userInfo))
-        }
-      } else {
-        console.error('🔑 ❌ No tokens received from login API. Response keys:', Object.keys(response)) // Debug log
-        console.error('🔑 ❌ Full response:', response)
       }
-      
-      return response
-    } catch (error) {
-      console.error('🔑 ❌ completeLogin API call failed:', error)
-      throw error
+
+      // Dispatch login event for token refresh manager
+      window.dispatchEvent(new CustomEvent('auth:login', {
+        detail: { 
+          userId: response.userId,
+          email: response.email,
+          fullName: response.fullName
+        }
+      }))
     }
+    
+    return response // ✅ Fixed: removed .data
   }
 
   async resetTemporaryPassword(resetData) {
@@ -142,6 +95,13 @@ class AuthService {
       // Clear local storage regardless of API response
       this.clearTokens()
       localStorage.removeItem('user')
+      
+      // Clean up session management
+      if (typeof window !== 'undefined') {
+        import('./sessionService').then(({ default: sessionService }) => {
+          sessionService.cleanup()
+        })
+      }
     }
   }
 
@@ -235,41 +195,55 @@ class AuthService {
     return response // ✅ Fixed: removed .data
   }
 
-  // ========== TOKEN MANAGEMENT ==========
+  // ========== ENHANCED AUTHENTICATION (NEW ENDPOINTS) ==========
   
-  setTokens({ authToken, refreshToken }) {
-    console.log('🔑 setTokens called with:', { // Debug log
-      authToken: authToken ? `${authToken.substring(0, 20)}...` : 'null',
-      refreshToken: refreshToken ? `${refreshToken.substring(0, 20)}...` : 'null'
-    })
-    
+  /**
+   * Check current session status with enhanced profile information
+   */
+  async getSessionStatus() {
     try {
-      if (authToken) {
-        localStorage.setItem('authToken', authToken)
-        console.log('🔑 ✅ Auth token stored in localStorage')
-      }
-      if (refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken)
-        console.log('🔑 ✅ Refresh token stored in localStorage')
-      }
-      
-      // Verify storage worked
-      const storedAuth = localStorage.getItem('authToken')
-      const storedRefresh = localStorage.getItem('refreshToken')
-      console.log('🔑 Token storage verification:', {
-        authTokenStored: !!storedAuth,
-        refreshTokenStored: !!storedRefresh,
-        authTokenMatches: storedAuth === authToken,
-        refreshTokenMatches: storedRefresh === refreshToken
-      })
+      const response = await apiService.get('/auth/session-status')
+      return response
     } catch (error) {
-      console.error('🔑 ❌ Error storing tokens:', error)
+      console.error('Session status check failed:', error)
       throw error
     }
   }
 
+  /**
+   * Extend current user session based on activity
+   */
+  async extendSession() {
+    try {
+      const response = await apiService.post('/auth/extend-session')
+      return response
+    } catch (error) {
+      console.error('Session extension failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Get enhanced user profile with role and profile information
+   */
+  async getUserProfile() {
+    try {
+      const response = await apiService.get('/users/profile')
+      return response
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error)
+      throw error
+    }
+  }
+
+  // ========== TOKEN MANAGEMENT ==========
+  
+  setTokens({ authToken, refreshToken }) {
+    if (authToken) localStorage.setItem('authToken', authToken)
+    if (refreshToken) localStorage.setItem('refreshToken', refreshToken)
+  }
+
   clearTokens() {
-    console.log('clearTokens() called - removing auth and refresh tokens')
     localStorage.removeItem('authToken')
     localStorage.removeItem('refreshToken')
   }
@@ -282,39 +256,122 @@ class AuthService {
     return localStorage.getItem('refreshToken')
   }
 
-  // ✅ New method: Manual token refresh for activity-based session management
-  async refreshToken() {
-    const refreshToken = this.getRefreshToken()
-    if (!refreshToken) {
-      throw new Error('No refresh token available')
-    }
-
+  /**
+   * Refresh the access token using the refresh token
+   */
+  async refreshAccessToken() {
     try {
+      const refreshToken = this.getRefreshToken()
+      if (!refreshToken) {
+        throw new Error('No refresh token available')
+      }
+
       const response = await apiService.post('/auth/refresh-token', {
-        refreshToken: refreshToken
+        refreshToken
       })
-      
+
+      // Update tokens with the new ones
       this.setTokens({
-        authToken: response.jwtToken || response.authToken,
+        authToken: response.authToken || response.accessToken,
         refreshToken: response.refreshToken
       })
-      
-      console.log('Token refreshed successfully')
-      return response
+
+      // Update user data if provided
+      if (response.user) {
+        localStorage.setItem('user', JSON.stringify(response.user))
+      }
+
+      return {
+        authToken: response.authToken || response.accessToken,
+        refreshToken: response.refreshToken
+      }
     } catch (error) {
       console.error('Token refresh failed:', error)
-      
-      // Only clear tokens for certain error types, not 403 (which is expected when refresh token is invalid)
-      // Let the API interceptor handle session expiration properly
-      if (error.response?.status === 401 || error.response?.status === 400) {
-        console.log('Clearing tokens due to authentication error:', error.response?.status)
-        this.clearAllUserData()
-      } else {
-        console.log('Not clearing tokens for error status:', error.response?.status, '- letting API interceptor handle it')
-      }
-      
+      // Clear invalid tokens
+      this.clearAllUserData()
       throw error
     }
+  }
+
+  /**
+   * Check if the current token is expired or about to expire (Updated for 2-hour tokens)
+   */
+  isTokenExpired(bufferMinutes = 15) { // ✅ UPDATED: Increased buffer from 5 to 15 minutes for 2-hour tokens
+    const token = this.getAuthToken()
+    if (!token) return true
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      const currentTime = Date.now() / 1000
+      const bufferTime = bufferMinutes * 60 // Convert minutes to seconds
+      return payload.exp <= (currentTime + bufferTime)
+    } catch (error) {
+      console.error('Error parsing token:', error)
+      return true
+    }
+  }
+
+  /**
+   * Check if token expires within 5 minutes (Near expiration check)
+   */
+  isTokenNearExpiration(token = null) {
+    const tokenToCheck = token || this.getAuthToken()
+    if (!tokenToCheck) return true
+    
+    try {
+      const payload = JSON.parse(atob(tokenToCheck.split('.')[1]))
+      const expirationTime = payload.exp * 1000
+      const currentTime = Date.now()
+      const timeUntilExpiration = expirationTime - currentTime
+      const fiveMinutes = 5 * 60 * 1000
+      
+      return timeUntilExpiration <= fiveMinutes
+    } catch (error) {
+      console.error('Error parsing token for near expiration check:', error)
+      return true
+    }
+  }
+
+  /**
+   * Proactively refresh token if it's about to expire (Enhanced for 2-hour tokens)
+   */
+  async refreshTokenIfNeeded() {
+    // Check if token expires within 20 minutes (more aggressive for 2-hour tokens)
+    if (this.isTokenExpired(20)) { // ✅ UPDATED: 20 minutes buffer instead of 5
+      try {
+        console.log('🔄 Proactively refreshing token (expires within 20 minutes)...')
+        await this.refreshAccessToken()
+        return true
+      } catch (error) {
+        console.error('Proactive token refresh failed:', error)
+        return false
+      }
+    }
+    return true // Token is still valid
+  }
+
+  /**
+   * Enhanced API request method with proactive token refresh
+   */
+  async makeAuthenticatedRequest(url, options = {}) {
+    // Proactive refresh check
+    await this.refreshTokenIfNeeded()
+    
+    const authToken = this.getAuthToken()
+    if (!authToken) {
+      throw new Error('No authentication token available')
+    }
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authToken}`,
+      ...options.headers
+    }
+
+    return fetch(`${import.meta.env.VITE_API_BASE || 'http://localhost:8080/api/v1'}${url}`, {
+      ...options,
+      headers
+    })
   }
 
   // ========== UTILITY METHODS ==========
@@ -344,7 +401,44 @@ class AuthService {
     return `${maskedLocal}@${domain}`
   }
 
+  /**
+   * Enhanced method to get user data from JWT token with new claims
+   */
+  getUserFromToken() {
+    const token = this.getAuthToken()
+    if (!token) return null
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      return {
+        userId: payload.userId,
+        email: payload.email,
+        fullName: payload.fullName,
+        role: payload.role,
+        profile: payload.profile,
+        profileId: payload.profileId,
+        profileLevel: payload.profileLevel,
+        companyId: payload.companyId,
+        companyName: payload.companyName,
+        redirectTo: payload.redirectTo,
+        authorities: payload.authorities || [],
+        exp: payload.exp,
+        iat: payload.iat
+      }
+    } catch (error) {
+      console.error('Failed to parse JWT token:', error)
+      return null
+    }
+  }
+
   getCurrentUser() {
+    // Try to get enhanced user data from JWT first
+    const userFromToken = this.getUserFromToken()
+    if (userFromToken) {
+      return userFromToken
+    }
+    
+    // Fallback to localStorage for backward compatibility
     try {
       const user = localStorage.getItem('user')
       return user ? JSON.parse(user) : null
@@ -356,139 +450,23 @@ class AuthService {
 
   isAuthenticated() {
     const token = this.getAuthToken()
-    const refreshToken = this.getRefreshToken()
-    
-    // No token at all means not authenticated
-    if (!token) {
-      console.debug('No auth token found')
-      return false
-    }
+    if (!token) return false
     
     try {
-      // Parse JWT payload to check expiration
+      // ✅ Enhanced: Check if token is expired (basic JWT check)
       const payload = JSON.parse(atob(token.split('.')[1]))
       const currentTime = Date.now() / 1000
-      
-      // Add a 5-minute buffer to account for clock skew and network delays
-      const expirationBuffer = 5 * 60 // 5 minutes in seconds
-      const isExpired = payload.exp <= (currentTime + expirationBuffer)
-      
-      console.debug('Token validation:', {
-        expires: new Date(payload.exp * 1000).toISOString(),
-        currentTime: new Date(currentTime * 1000).toISOString(),
-        isExpired,
-        hasRefreshToken: !!refreshToken
-      })
-      
-      // If token is expired but we have a refresh token, consider user authenticated
-      // The API interceptor will handle token refresh automatically
-      if (isExpired && refreshToken) {
-        console.debug('Token expired but refresh token available')
-        return true
-      }
-      
-      // Token is valid and not expired
-      return !isExpired
+      return payload.exp > currentTime
     } catch (error) {
-      console.error('Invalid token format or parsing error:', error)
-      // If we have a refresh token, try to use it even if main token is malformed
-      if (refreshToken) {
-        console.debug('Main token invalid but refresh token available')
-        return true
-      }
+      console.error('Invalid token format:', error)
       return false
     }
   }
 
   // ✅ New method: Clear all user data
   clearAllUserData() {
-    console.log('clearAllUserData() called - clearing all authentication data')
     this.clearTokens()
     localStorage.removeItem('user')
-  }
-
-  // ✅ New method: Initialize authentication state on app startup
-  async initializeAuth() {
-    const token = this.getAuthToken()
-    const refreshToken = this.getRefreshToken()
-    
-    console.debug('Initializing auth state:', {
-      hasToken: !!token,
-      hasRefreshToken: !!refreshToken
-    })
-    
-    // If no tokens, user is not authenticated
-    if (!token && !refreshToken) {
-      console.debug('No tokens found, user not authenticated')
-      return false
-    }
-    
-    // If we have tokens, try to validate them
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]))
-        const currentTime = Date.now() / 1000
-        const isExpired = payload.exp <= currentTime
-        
-        console.debug('Token validation on init:', {
-          expires: new Date(payload.exp * 1000).toISOString(),
-          isExpired
-        })
-        
-        // If token is not expired, user is authenticated
-        if (!isExpired) {
-          console.debug('Valid token found, user authenticated')
-          return true
-        }
-      } catch (error) {
-        console.warn('Token parsing failed during init:', error)
-      }
-    }
-    
-    // If main token is expired/invalid but we have refresh token, try to refresh
-    if (refreshToken) {
-      try {
-        console.debug('Attempting token refresh on app init')
-        await this.refreshToken()
-        console.debug('Token refresh successful, user authenticated')
-        return true
-      } catch (error) {
-        console.warn('Token refresh failed during init:', error)
-        this.clearAllUserData()
-        return false
-      }
-    }
-    
-    // No valid authentication found
-    console.debug('No valid authentication found')
-    this.clearAllUserData()
-    return false
-  }
-
-  // ✅ New method: Check if user has valid session without network call
-  hasValidSession() {
-    const token = this.getAuthToken()
-    const refreshToken = this.getRefreshToken()
-    
-    // Must have at least one token
-    if (!token && !refreshToken) return false
-    
-    // If we have a refresh token, assume session is valid
-    // (API interceptor will handle refresh if needed)
-    if (refreshToken) return true
-    
-    // Check if main token is valid
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]))
-        const currentTime = Date.now() / 1000
-        return payload.exp > currentTime
-      } catch (error) {
-        return false
-      }
-    }
-    
-    return false
   }
 }
 

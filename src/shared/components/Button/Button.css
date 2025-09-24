@@ -1,0 +1,293 @@
+/* ==========================================
+   REUSABLE BUTTON COMPONENT STYLES
+   Exactly matches login button styles from globals.css
+   ========================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  font-family: inherit;
+  position: relative;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.btn:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}
+
+/* Button Sizes */
+.btn-small {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.btn-medium {
+  padding: 12px 24px;
+  font-size: 16px;
+}
+
+.btn-large {
+  padding: 16px 32px;
+  font-size: 18px;
+}
+
+/* PRIMARY BUTTON - Matches login button exactly */
+.btn-primary {
+  background: #8FB7C6;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(143, 183, 198, 0.4);
+}
+
+.btn-primary:hover {
+  background: #7ba5b4;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* SECONDARY BUTTON - Dark theme style from login */
+.btn-secondary {
+  background: #111;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(17, 17, 17, 0.6);
+}
+
+.btn-secondary:hover {
+  background: #222;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* SUCCESS BUTTON (Green for Add Users) */
+.btn-success {
+  background: #10b981;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.btn-success:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+}
+
+.btn-success:active {
+  transform: translateY(0);
+}
+
+/* INFO BUTTON (Blue for Manage Users) */
+.btn-info {
+  background: #3b82f6;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-info:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+}
+
+.btn-info:active {
+  transform: translateY(0);
+}
+
+/* DANGER BUTTON (Red for Delete Users) */
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
+}
+
+.btn-danger:active {
+  transform: translateY(0);
+}
+
+/* WARNING BUTTON */
+.btn-warning {
+  background: #f59e0b;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.btn-warning:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5);
+}
+
+.btn-warning:active {
+  transform: translateY(0);
+}
+
+/* OUTLINE VARIANTS */
+.btn-outline-primary {
+  background: transparent;
+  border: 2px solid #8FB7C6;
+  color: #8FB7C6;
+  box-shadow: none;
+}
+
+.btn-outline-primary:hover {
+  background: #8FB7C6;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(143, 183, 198, 0.3);
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  border: 2px solid #6b7280;
+  color: #6b7280;
+  box-shadow: none;
+}
+
+.btn-outline-secondary:hover {
+  background: #6b7280;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(107, 114, 128, 0.3);
+}
+
+/* DISABLED STATE - Matches login button exactly */
+.btn-disabled {
+  background: rgb(174, 175, 176) !important;
+  color: #fff !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: rgb(174, 175, 176) !important;
+}
+
+/* LOADING STATE */
+.btn-loading {
+  cursor: wait;
+  pointer-events: none;
+}
+
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* DARK THEME STYLES - Matches login exactly */
+body.dark .btn-primary {
+  background: #111;
+  box-shadow: 0 4px 12px rgba(17, 17, 17, 0.6);
+}
+
+body.dark .btn-primary:hover {
+  background: #222;
+  box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
+}
+
+body.dark .btn-secondary {
+  background: #111;
+  box-shadow: 0 4px 12px rgba(17, 17, 17, 0.6);
+}
+
+body.dark .btn-secondary:hover {
+  background: #222;
+  box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
+}
+
+body.dark .btn-success {
+  background: #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+body.dark .btn-success:hover {
+  background: #059669;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+}
+
+body.dark .btn-info {
+  background: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+body.dark .btn-info:hover {
+  background: #2563eb;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+}
+
+body.dark .btn-danger {
+  background: #ef4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+body.dark .btn-danger:hover {
+  background: #dc2626;
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
+}
+
+body.dark .btn-warning {
+  background: #f59e0b;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+body.dark .btn-warning:hover {
+  background: #d97706;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.5);
+}
+
+body.dark .btn-outline-primary {
+  border-color: #8FB7C6;
+  color: #8FB7C6;
+}
+
+body.dark .btn-outline-primary:hover {
+  background: #8FB7C6;
+  color: #ffffff;
+}
+
+body.dark .btn-outline-secondary {
+  border-color: #9ca3af;
+  color: #9ca3af;
+}
+
+body.dark .btn-outline-secondary:hover {
+  background: #9ca3af;
+  color: #1a1a1a;
+}
+
+/* Disabled state for dark theme - matches login exactly */
+body.dark .btn-disabled {
+  background: rgb(174, 175, 176) !important;
+  box-shadow: none !important;
+}

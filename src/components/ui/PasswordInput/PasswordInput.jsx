@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
 
 const PasswordInput = ({ id, placeholder, required = false, value, onChange }) => {
   const [showPassword, setShowPassword] = useState(false)
@@ -19,7 +18,7 @@ const PasswordInput = ({ id, placeholder, required = false, value, onChange }) =
         onChange={onChange}
       />
       <span className="toggle-password" onClick={togglePassword}>
-        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+        <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
       </span>
     </div>
   )

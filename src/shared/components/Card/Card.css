@@ -1,0 +1,158 @@
+/* ==========================================
+   REUSABLE CARD COMPONENT STYLES
+   Consistent card styling across the application
+   ========================================== */
+
+.pathigai-card {
+  background: #eaf4fa;
+  border: 1px solid #8FB7C6;
+  border-radius: 12px;
+  box-shadow: 0 16px 16px #0000001a;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+body.dark .pathigai-card {
+  background: #2d2d2d;
+  border: 1px solid #404040;
+  box-shadow: 0 16px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Card Variants */
+.pathigai-card-default {
+  /* Default styling already applied above */
+}
+
+.pathigai-card-elevated {
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+}
+
+body.dark .pathigai-card-elevated {
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.4);
+}
+
+.pathigai-card-flat {
+  box-shadow: none;
+  border: 1px solid #8FB7C6;
+}
+
+body.dark .pathigai-card-flat {
+  border: 1px solid #404040;
+}
+
+.pathigai-card-interactive {
+  cursor: pointer;
+}
+
+.pathigai-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px rgba(143, 183, 198, 0.15);
+}
+
+body.dark .pathigai-card-interactive:hover {
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Padding Variants */
+.pathigai-card-padding-none {
+  padding: 0;
+}
+
+.pathigai-card-padding-small {
+  padding: 16px;
+}
+
+.pathigai-card-padding-default {
+  padding: 24px;
+}
+
+.pathigai-card-padding-large {
+  padding: 32px;
+}
+
+.pathigai-card-padding-xl {
+  padding: 40px;
+}
+
+/* Card Header (if needed) */
+.pathigai-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(143, 183, 198, 0.2);
+}
+
+body.dark .pathigai-card-header {
+  border-bottom: 1px solid #404040;
+}
+
+.pathigai-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+body.dark .pathigai-card-title {
+  color: #ffffff;
+}
+
+.pathigai-card-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 4px 0 0 0;
+}
+
+body.dark .pathigai-card-subtitle {
+  color: #9ca3af;
+}
+
+/* Card Content */
+.pathigai-card-content {
+  color: #374151;
+}
+
+body.dark .pathigai-card-content {
+  color: #d1d5db;
+}
+
+/* Card Footer (if needed) */
+.pathigai-card-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(143, 183, 198, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+body.dark .pathigai-card-footer {
+  border-top: 1px solid #404040;
+}
+
+/* Common hover effects for card content */
+.pathigai-card:hover .pathigai-card-title {
+  color: #8FB7C6;
+}
+
+body.dark .pathigai-card:hover .pathigai-card-title {
+  color: #8FB7C6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pathigai-card-padding-default {
+    padding: 20px;
+  }
+  
+  .pathigai-card-padding-large {
+    padding: 24px;
+  }
+  
+  .pathigai-card-padding-xl {
+    padding: 28px;
+  }
+}

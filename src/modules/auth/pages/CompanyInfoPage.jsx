@@ -6,13 +6,14 @@ import TopNav from '../../../components/common/TopNav/TopNav'
 import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
 import authService from '../../../shared/services/authService'
+import userService from '../../../shared/services/userService'
 import logo from '../../../assets/logo.svg'
 
 const CompanyInfoPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
   
-  const { userId } = location.state || {}
+  const { userId, email, fullName } = location.state || {}
 
   const [formData, setFormData] = useState({
     companyName: '',
@@ -49,13 +50,30 @@ const CompanyInfoPage = () => {
         companyWebsite: formData.companyWebsite.trim() || null
       }
 
-  await authService.completeSignup(companyData)
+      const response = await authService.completeSignup(companyData)
 
-  // Show success message
-  alert('Account created successfully! Welcome to Pathigai!')
-  // If tokens are set, go straight to dashboard; else go to login
-  const hasToken = !!authService.getAuthToken()
-  navigate(hasToken ? '/dashboard' : '/login', { replace: true })
+      // Store user information and tokens if provided
+      if (response.jwtToken) {
+        authService.setTokens({
+          authToken: response.jwtToken,
+          refreshToken: response.refreshToken
+        })
+        
+        // Store user data
+        localStorage.setItem('user', JSON.stringify({
+          userId: response.userId || userId,
+          email: email,
+          fullName: fullName
+        }))
+      }
+
+      // Get user profile to determine dashboard route
+      const userProfile = userService.getSimulatedUserProfile() // TODO: Get from API
+      const dashboardRoute = userService.getDashboardRoute(userProfile.primaryProfile)
+
+      // Show success message and redirect to dashboard
+      alert('Account created successfully! Welcome to Pathigai!')
+      navigate(dashboardRoute, { replace: true })
 
     } catch (err) {
       console.error('Company creation error:', err)

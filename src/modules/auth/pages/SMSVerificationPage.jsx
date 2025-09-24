@@ -7,6 +7,7 @@ import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
 import OTPInput from '../../../components/ui/OTPInput/OTPInput'
 import authService from '../../../shared/services/authService'
+import userService from '../../../shared/services/userService'
 import logo from '../../../assets/logo.svg'
 
 const SMSVerificationPage = () => {
@@ -195,7 +196,11 @@ const SMSVerificationPage = () => {
             replace: true
           })
         } else if (response.nextStep === 'SIGNUP_COMPLETE') {
-          navigate('/dashboard', { replace: true })
+          // Get user profile to determine dashboard route
+          const userProfile = userService.getSimulatedUserProfile() // TODO: Get from API
+          const dashboardRoute = userService.getDashboardRoute(userProfile.primaryProfile)
+          
+          navigate(dashboardRoute, { replace: true })
         } else {
           console.warn('Unexpected nextStep for SIGNUP:', response.nextStep)
           setError('Verification completed but next step is unclear. Please contact support.')
@@ -220,8 +225,13 @@ const SMSVerificationPage = () => {
             
             if (loginResponse && (loginResponse.jwtToken || loginResponse.authToken)) {
               console.log('Login completed successfully')
+              
+              // Get user profile to determine dashboard route
+              const userProfile = userService.getSimulatedUserProfile() // TODO: Get from API
+              const dashboardRoute = userService.getDashboardRoute(userProfile.primaryProfile)
+              
               alert('Successfully logged in.')
-              navigate('/dashboard', { replace: true })
+              navigate(dashboardRoute, { replace: true })
             } else {
               console.warn('Login response missing token:', loginResponse)
               setError('Login completion failed. Please try again.')
