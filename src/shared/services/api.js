@@ -31,12 +31,18 @@ api.interceptors.request.use(
     }
     
     // ✅ Enhanced logging for debugging
-    console.debug('API Request:', {
+    console.debug('🚀 API Request:', {
       method: config.method?.toUpperCase(),
       url: config.url,
       baseURL: config.baseURL,
+      fullUrl: `${config.baseURL}${config.url}`,
       hasAuth: !!token,
-      data: config.data
+      authHeader: config.headers.Authorization ? `${config.headers.Authorization.substring(0, 30)}...` : 'NO AUTH HEADER',
+      headers: {
+        'Content-Type': config.headers['Content-Type'],
+        'Authorization': config.headers.Authorization ? 'Bearer ***' : 'MISSING'
+      },
+      dataPreview: config.data ? JSON.stringify(config.data).substring(0, 100) + '...' : 'NO DATA'
     })
     
     return config

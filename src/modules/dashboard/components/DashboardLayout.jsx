@@ -9,11 +9,11 @@ import ContentArea from './ContentArea'
 import Footer from '../../../components/common/Footer/Footer'
 import '../styles/dashboard.css'
 
-// Fallback navigation structure when API fails
+// Simple navigation structure - only Dashboard, User Management, and Settings
 const getFallbackNavigation = (profile) => {
   const baseNavigation = [
     {
-      section: 'Overview',
+      section: 'Main',
       items: [
         { id: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: 'layout-dashboard', enabled: true }
       ]
@@ -26,10 +26,10 @@ const getFallbackNavigation = (profile) => {
         navigation: [
           ...baseNavigation,
           {
-            section: 'Administration',
+            section: 'Management',
             items: [
               { id: 'users', label: 'User Management', path: '/dashboard/users', icon: 'users', enabled: true },
-              { id: 'settings', label: 'System Settings', path: '/dashboard/settings', icon: 'settings', enabled: true }
+              { id: 'settings', label: 'Settings', path: '/dashboard/settings', icon: 'settings', enabled: true }
             ]
           }
         ],
@@ -37,6 +37,21 @@ const getFallbackNavigation = (profile) => {
       }
 
     case 'ADMIN':
+      return {
+        navigation: [
+          ...baseNavigation,
+          {
+            section: 'Management',
+            items: [
+              { id: 'users', label: 'User Management', path: '/dashboard/users', icon: 'users', enabled: true },
+              { id: 'settings', label: 'Settings', path: '/dashboard/settings', icon: 'settings', enabled: true }
+            ]
+          }
+        ],
+        permissions: ['user.create', 'user.view', 'user.edit']
+      }
+
+    case 'MANAGEMENT':
       return {
         navigation: [
           ...baseNavigation,
@@ -123,10 +138,16 @@ const DashboardLayout = ({ children }) => {
           setUser(fallbackData)
         }
 
-        // Load navigation data
+        // Load navigation data - TEMPORARILY DISABLED TO USE CLEAN FALLBACK
+        // TODO: Re-enable when backend API returns clean navigation
         try {
-          const navData = await dashboardService.getCachedNavigation()
-          setNavigation(navData)
+          // const navData = await dashboardService.getCachedNavigation()
+          // setNavigation(navData)
+          
+          // Force use of fallback navigation for now
+          console.log('Using fallback navigation (API disabled)')
+          const currentUserData = userData || authService.getCurrentUser()
+          setNavigation(getFallbackNavigation(currentUserData?.profile))
         } catch (navError) {
           console.warn('Failed to load navigation, using fallback:', navError)
           // Use fallback navigation structure
