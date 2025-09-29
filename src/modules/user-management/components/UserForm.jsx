@@ -52,12 +52,35 @@ const UserForm = ({ userProfile = 'SUPER_ADMIN', onSubmit, onCancel }) => {
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
 
-  // Get allowed profiles based on current user's profile
+  // Get allowed profiles based on current user's profile with restrictions
   const getAllowedProfiles = () => {
     const currentLevel = PROFILES[userProfile]?.level || 0
-    return Object.entries(PROFILES)
+    let allowedProfiles = Object.entries(PROFILES)
       .filter(([key, profile]) => profile.level <= currentLevel)
       .map(([key, profile]) => ({ key, ...profile }))
+
+    // Apply profile-specific restrictions
+    switch (userProfile) {
+      case 'SUPER_ADMIN':
+        // SUPER_ADMIN can create all profiles
+        return allowedProfiles
+        
+      case 'ADMIN':
+        // ADMIN cannot add other ADMINs or SUPER_ADMINs
+        return allowedProfiles.filter(profile => 
+          !['SUPER_ADMIN', 'ADMIN'].includes(profile.key)
+        )
+        
+      case 'MANAGEMENT':
+        // MANAGEMENT can only add: Trainees, Interview Panelists
+        return allowedProfiles.filter(profile => 
+          ['TRAINEE', 'INTERVIEW_PANELIST'].includes(profile.key)
+        )
+        
+      default:
+        // Other profiles don't have user management access
+        return []
+    }
   }
 
   // Get allowed roles based on selected profile

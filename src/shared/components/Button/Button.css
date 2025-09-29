@@ -162,13 +162,13 @@
 
 .btn-outline-secondary {
   background: transparent;
-  border: 2px solid #6b7280;
-  color: #6b7280;
+  border: 2px solid #8FB7C6;
+  color: #8FB7C6;
   box-shadow: none;
 }
 
 .btn-outline-secondary:hover {
-  background: #6b7280;
+  background: #8FB7C6;
   color: #fff;
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(107, 114, 128, 0.3);
@@ -277,12 +277,12 @@ body.dark .btn-outline-primary:hover {
 }
 
 body.dark .btn-outline-secondary {
-  border-color: #9ca3af;
-  color: #9ca3af;
+  border-color: #8FB7C6;
+  color: #8FB7C6;
 }
 
 body.dark .btn-outline-secondary:hover {
-  background: #9ca3af;
+  background: #8FB7C6;
   color: #1a1a1a;
 }
 

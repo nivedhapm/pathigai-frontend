@@ -923,16 +923,16 @@ body.dark .profile-super-admin .nav-item.active {
   box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
 }
 
-/* ADMIN specific styling */
+/* ADMIN specific styling - Standardized to match SUPER_ADMIN in light theme */
 .profile-admin .user-avatar {
-  background: linear-gradient(135deg, #dc2626, #ef4444);
+  background: linear-gradient(135deg, #8FB7C6, #55a1f7);
 }
 
 .profile-admin .nav-item.active {
-  background: #dc2626;
+  background: #8FB7C6;
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.5);
+  box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
 }
 
 body.dark .profile-admin .nav-item.active {
@@ -941,16 +941,16 @@ body.dark .profile-admin .nav-item.active {
   box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
 }
 
-/* MANAGEMENT specific styling */
+/* MANAGEMENT specific styling - Standardized to match SUPER_ADMIN in light theme */
 .profile-management .user-avatar {
-  background: linear-gradient(135deg, #ea580c, #f97316);
+  background: linear-gradient(135deg, #8FB7C6, #55a1f7);
 }
 
 .profile-management .nav-item.active {
-  background: #ea580c;
+  background: #8FB7C6;
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.5);
+  box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
 }
 
 body.dark .profile-management .nav-item.active {
@@ -959,16 +959,16 @@ body.dark .profile-management .nav-item.active {
   box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
 }
 
-/* TRAINER specific styling */
+/* TRAINER specific styling - Standardized to match SUPER_ADMIN in light theme */
 .profile-trainer .user-avatar {
-  background: linear-gradient(135deg, #059669, #10b981);
+  background: linear-gradient(135deg, #8FB7C6, #55a1f7);
 }
 
 .profile-trainer .nav-item.active {
-  background: #059669;
+  background: #8FB7C6;
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.5);
+  box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
 }
 
 body.dark .profile-trainer .nav-item.active {
@@ -977,16 +977,16 @@ body.dark .profile-trainer .nav-item.active {
   box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
 }
 
-/* INTERVIEW_PANELIST specific styling */
+/* INTERVIEW_PANELIST specific styling - Standardized to match SUPER_ADMIN in light theme */
 .profile-interview-panelist .user-avatar {
-  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  background: linear-gradient(135deg, #8FB7C6, #55a1f7);
 }
 
 .profile-interview-panelist .nav-item.active {
-  background: #0891b2;
+  background: #8FB7C6;
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(8, 145, 178, 0.5);
+  box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
 }
 
 body.dark .profile-interview-panelist .nav-item.active {
@@ -995,16 +995,16 @@ body.dark .profile-interview-panelist .nav-item.active {
   box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
 }
 
-/* PLACEMENT specific styling */
+/* PLACEMENT specific styling - Standardized to match SUPER_ADMIN in light theme */
 .profile-placement .user-avatar {
-  background: linear-gradient(135deg, #7c2d12, #ea580c);
+  background: linear-gradient(135deg, #8FB7C6, #55a1f7);
 }
 
 .profile-placement .nav-item.active {
-  background: #7c2d12;
+  background: #8FB7C6;
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(124, 45, 18, 0.5);
+  box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
 }
 
 body.dark .profile-placement .nav-item.active {
@@ -1013,16 +1013,16 @@ body.dark .profile-placement .nav-item.active {
   box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
 }
 
-/* TRAINEE specific styling */
+/* TRAINEE specific styling - Standardized to match SUPER_ADMIN in light theme */
 .profile-trainee .user-avatar {
-  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  background: linear-gradient(135deg, #8FB7C6, #55a1f7);
 }
 
 .profile-trainee .nav-item.active {
-  background: #1d4ed8;
+  background: #8FB7C6;
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.5);
+  box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
 }
 
 body.dark .profile-trainee .nav-item.active {

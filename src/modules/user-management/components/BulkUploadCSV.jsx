@@ -1,16 +1,32 @@
 import { useState, useRef } from 'react'
-import { Upload, FileText, Users, AlertCircle, CheckCircle, X, Download, Eye } from 'lucide-react'
+import { Upload, FileText, Users, AlertCircle, CheckCircle, X, Download, Eye, EyeOff, ChevronLeft, ChevronRight, Check } from 'lucide-react'
 import { Button } from '../../../shared/components'
+import userService from '../../../shared/services/userService'
 
 const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
   const [uploadStep, setUploadStep] = useState('upload') // 'upload', 'preview', 'processing', 'results'
   const [file, setFile] = useState(null)
-  const [csvData, setCsvData] = useState([])
+  const [csvData, setCsvData] = useState([]) // eslint-disable-line no-unused-vars
   const [validationResults, setValidationResults] = useState([])
   const [uploadResults, setUploadResults] = useState(null)
   const [isDragOver, setIsDragOver] = useState(false)
   const [loading, setLoading] = useState(false)
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [recordsPerPage] = useState(10)
+  // Password visibility state
+  const [showPasswords, setShowPasswords] = useState({})
   const fileInputRef = useRef(null)
+
+  // Password generation function
+  const generateTempPassword = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$'
+    let password = ''
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return password
+  }
 
   // Profile and Role hierarchies for validation
   const PROFILES = {
@@ -117,7 +133,13 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
           const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''))
           const row = {}
           headers.forEach((header, i) => {
-            row[header] = values[i] || ''
+            // Map lowercase headers back to original camelCase field names
+            const originalFieldName = REQUIRED_HEADERS.find(req => req.toLowerCase() === header)
+            if (originalFieldName) {
+              row[originalFieldName] = values[i] || ''
+            } else {
+              row[header] = values[i] || ''
+            }
           })
           row.rowNumber = index + 2 // +2 for header and 0-based index
           return row
@@ -169,17 +191,43 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
       }
 
       // Work location validation
-      if (row.worklocation && row.worklocation.trim().length < 2) {
+      if (row.workLocation && row.workLocation.trim().length < 2) {
         errors.push('Work location must be at least 2 characters')
       }
 
-      // Profile validation
+      // Profile validation with specific restrictions
       if (row.profile && !PROFILES[row.profile.toUpperCase()]) {
         errors.push('Invalid profile')
       } else if (row.profile) {
         const profileLevel = PROFILES[row.profile.toUpperCase()]?.level || 0
         if (profileLevel > currentLevel) {
           errors.push('Cannot assign higher profile than your own')
+        }
+
+        // Apply profile-specific restrictions based on current user's profile
+        const profileKey = row.profile.toUpperCase()
+        switch (userProfile) {
+          case 'SUPER_ADMIN':
+            // SUPER_ADMIN can create all profiles - no additional restrictions
+            break
+            
+          case 'ADMIN':
+            // ADMIN cannot add other ADMINs or SUPER_ADMINs
+            if (['SUPER_ADMIN', 'ADMIN'].includes(profileKey)) {
+              errors.push('Admin users cannot create other Admin or Super Admin profiles')
+            }
+            break
+            
+          case 'MANAGEMENT':
+            // MANAGEMENT can only add: Trainees, Interview Panelists
+            if (!['TRAINEE', 'INTERVIEW_PANELIST'].includes(profileKey)) {
+              errors.push('Management users can only create Trainee and Interview Panelist profiles')
+            }
+            break
+            
+          default:
+            // Other profiles don't have user management access
+            errors.push('Your profile does not have user creation permissions')
         }
       }
 
@@ -194,8 +242,8 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
       }
 
       // Date of Birth validation
-      if (row.dateofbirth) {
-        const dob = new Date(row.dateofbirth)
+      if (row.dateOfBirth) {
+        const dob = new Date(row.dateOfBirth)
         if (isNaN(dob.getTime())) {
           errors.push('Invalid date of birth format')
         } else {
@@ -223,21 +271,58 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
     setUploadStep('processing')
 
     try {
-      // Simulate API calls for user creation
+      // Get only valid rows for processing
       const validRows = validationResults.filter(result => result.isValid)
-      const successCount = validRows.length
-      const errorCount = validationResults.length - successCount
-
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      setUploadResults({
+      const results = {
         totalRows: validationResults.length,
-        successCount,
-        errorCount,
+        successCount: 0,
+        errorCount: 0,
+        details: [],
         timestamp: new Date().toLocaleString()
+      }
+
+      // Process each valid row
+      for (const validation of validRows) {
+        try {
+          // Add password to user data
+          const userDataWithPassword = {
+            ...validation.data,
+            temporaryPassword: generateTempPassword()
+          }
+
+          // Create user via API
+          await userService.createUser(userDataWithPassword)
+          
+          results.successCount++
+          results.details.push({
+            email: validation.data.email,
+            status: 'success',
+            message: 'User created successfully'
+          })
+        } catch (error) {
+          console.error(`Failed to create user ${validation.data.email}:`, error)
+          results.errorCount++
+          results.details.push({
+            email: validation.data.email,
+            status: 'error',
+            message: error.message || 'Failed to create user'
+          })
+        }
+      }
+
+      // Add validation errors to error count
+      const invalidRows = validationResults.filter(result => !result.isValid)
+      results.errorCount += invalidRows.length
+      
+      invalidRows.forEach(validation => {
+        results.details.push({
+          email: validation.data.email || 'Unknown',
+          status: 'error',
+          message: validation.errors.join(', ')
+        })
       })
 
+      setUploadResults(results)
       setUploadStep('results')
     } catch (error) {
       console.error('Upload failed:', error)
@@ -245,6 +330,26 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Pagination helpers
+  const getPaginatedData = (data) => {
+    const startIndex = (currentPage - 1) * recordsPerPage
+    const endIndex = startIndex + recordsPerPage
+    return data.slice(startIndex, endIndex)
+  }
+
+  const getTotalPages = (data) => Math.ceil(data.length / recordsPerPage)
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage)
+  }
+
+  const togglePasswordVisibility = (index) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }))
   }
 
   const downloadSampleCSV = () => {
@@ -272,6 +377,8 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
     setCsvData([])
     setValidationResults([])
     setUploadResults(null)
+    setCurrentPage(1)
+    setShowPasswords({})
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -377,34 +484,94 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
               <span>Work Location</span>
               <span>Role</span>
               <span>Profile</span>
+              <span>Temp Password</span>
               <span>Status</span>
             </div>
-            {validationResults.slice(0, 10).map(result => (
-              <div key={result.rowNumber} className={`table-row ${result.isValid ? 'valid' : 'invalid'}`}>
-                <span>{result.rowNumber}</span>
-                <span>{result.data.fullname}</span>
-                <span>{result.data.email}</span>
-                <span>{result.data.gender}</span>
-                <span>{result.data.worklocation}</span>
-                <span>{result.data.role}</span>
-                <span>{result.data.profile}</span>
-                <span className="status-cell">
-                  {result.isValid ? (
-                    <CheckCircle size={16} className="success-icon" />
-                  ) : (
-                    <div className="error-details">
-                      <AlertCircle size={16} className="error-icon" />
-                      <div className="error-tooltip">
-                        {result.errors.join(', ')}
+            <div className="table-body">
+              {getPaginatedData(validationResults).map((result, index) => {
+                const globalIndex = (currentPage - 1) * recordsPerPage + index
+                const tempPassword = generateTempPassword()
+                
+                return (
+                  <div key={result.rowNumber} className={`table-row ${result.isValid ? 'valid' : 'invalid'}`}>
+                    <span className="row-number">{result.rowNumber}</span>
+                    <span className="name-cell">{result.data.fullName}</span>
+                    <span className="email-cell">{result.data.email}</span>
+                    <span className="gender-cell">{result.data.gender}</span>
+                    <span className="location-cell">{result.data.workLocation}</span>
+                    <span className="role-cell">{result.data.role}</span>
+                    <span className="profile-cell">{result.data.profile}</span>
+                    <span className="password-cell">
+                      <div className="password-container">
+                        <span className="password-text">
+                          {showPasswords[globalIndex] ? tempPassword : '••••••••••••'}
+                        </span>
+                        <button
+                          type="button"
+                          className="password-toggle"
+                          onClick={() => togglePasswordVisibility(globalIndex)}
+                        >
+                          {showPasswords[globalIndex] ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
                       </div>
-                    </div>
-                  )}
-                </span>
-              </div>
-            ))}
-            {validationResults.length > 10 && (
-              <div className="table-footer">
-                Showing first 10 of {validationResults.length} records
+                    </span>
+                    <span className="status-cell">
+                      {result.isValid ? (
+                        <div className="status-valid">
+                          <Check size={16} className="success-icon" />
+                          <span>Valid</span>
+                        </div>
+                      ) : (
+                        <div className="status-invalid">
+                          <X size={16} className="error-icon" />
+                          <div className="error-tooltip">
+                            {result.errors.join(', ')}
+                          </div>
+                        </div>
+                      )}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+            
+            {/* Pagination Controls */}
+            {getTotalPages(validationResults) > 1 && (
+              <div className="table-pagination">
+                <div className="pagination-info">
+                  Showing {(currentPage - 1) * recordsPerPage + 1} to {Math.min(currentPage * recordsPerPage, validationResults.length)} of {validationResults.length} records
+                </div>
+                <div className="pagination-controls">
+                  <button
+                    className="pagination-btn"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft size={16} />
+                    Previous
+                  </button>
+                  
+                  <div className="page-numbers">
+                    {Array.from({ length: getTotalPages(validationResults) }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        className={`page-number ${page === currentPage ? 'active' : ''}`}
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <button
+                    className="pagination-btn"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === getTotalPages(validationResults)}
+                  >
+                    Next
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -420,9 +587,9 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
           <Button
             variant="success"
             onClick={handleUploadUsers}
-            disabled={validCount === 0}
+            disabled={validCount === 0 || loading}
           >
-            Upload {validCount} Valid Users
+            {loading ? 'Creating Users...' : `Upload ${validCount} Valid Users`}
           </Button>
         </div>
       </div>
@@ -452,24 +619,31 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
             <h3>Upload Complete</h3>
           </div>
           <p className="upload-description">
-            User creation process completed successfully
+            User creation process completed
           </p>
         </div>
 
         <div className="results-summary">
           <div className="summary-stats">
-            <div className="stat-card">
-              <Users size={24} />
+            <div className="stat-card success">
+              <Check size={24} />
               <div>
                 <h4>{uploadResults.successCount}</h4>
                 <p>Users Created</p>
               </div>
             </div>
             <div className="stat-card error">
-              <AlertCircle size={24} />
+              <X size={24} />
               <div>
                 <h4>{uploadResults.errorCount}</h4>
-                <p>Errors</p>
+                <p>Failed</p>
+              </div>
+            </div>
+            <div className="stat-card total">
+              <Users size={24} />
+              <div>
+                <h4>{uploadResults.totalRows}</h4>
+                <p>Total Records</p>
               </div>
             </div>
           </div>
@@ -477,6 +651,73 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
             Completed on {uploadResults.timestamp}
           </p>
         </div>
+
+        {uploadResults.details && uploadResults.details.length > 0 && (
+          <div className="detailed-results">
+            <h4>Detailed Results</h4>
+            <div className="results-table">
+              <div className="table-header">
+                <span>Email</span>
+                <span>Status</span>
+                <span>Message</span>
+              </div>
+              <div className="table-body">
+                {getPaginatedData(uploadResults.details).map((detail, index) => (
+                  <div key={index} className={`table-row ${detail.status}`}>
+                    <span className="email-cell">{detail.email}</span>
+                    <span className="status-cell">
+                      <div className={`status-badge ${detail.status}`}>
+                        {detail.status === 'success' ? <Check size={14} /> : <X size={14} />}
+                        {detail.status === 'success' ? 'Created' : 'Failed'}
+                      </div>
+                    </span>
+                    <span className="message-cell">{detail.message}</span>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Pagination for results */}
+              {getTotalPages(uploadResults.details) > 1 && (
+                <div className="table-pagination">
+                  <div className="pagination-info">
+                    Showing {(currentPage - 1) * recordsPerPage + 1} to {Math.min(currentPage * recordsPerPage, uploadResults.details.length)} of {uploadResults.details.length} records
+                  </div>
+                  <div className="pagination-controls">
+                    <button
+                      className="pagination-btn"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft size={16} />
+                      Previous
+                    </button>
+                    
+                    <div className="page-numbers">
+                      {Array.from({ length: getTotalPages(uploadResults.details) }, (_, i) => i + 1).map(page => (
+                        <button
+                          key={page}
+                          className={`page-number ${page === currentPage ? 'active' : ''}`}
+                          onClick={() => handlePageChange(page)}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    <button
+                      className="pagination-btn"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === getTotalPages(uploadResults.details)}
+                    >
+                      Next
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="results-actions">
           <Button

@@ -205,12 +205,15 @@ class UserService {
         return ['SUPER_ADMIN', 'ADMIN', 'MANAGEMENT', 'TRAINER', 'INTERVIEW_PANELIST', 'PLACEMENT', 'TRAINEE']
       
       case 'ADMIN':
+        // ADMIN cannot add other ADMINs or SUPER_ADMINs
         return ['MANAGEMENT', 'TRAINER', 'INTERVIEW_PANELIST', 'PLACEMENT', 'TRAINEE']
       
       case 'MANAGEMENT':
+        // MANAGEMENT can only add: Trainees, Interview Panelists
         return ['TRAINEE', 'INTERVIEW_PANELIST']
       
       default:
+        // Other profiles don't have user management access
         return []
     }
   }
