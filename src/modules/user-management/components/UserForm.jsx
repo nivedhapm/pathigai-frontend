@@ -146,8 +146,8 @@ const UserForm = ({ userProfile = 'SUPER_ADMIN', onSubmit, onCancel }) => {
         age--
       }
       
-      if (age < 13) {
-        newErrors.dateOfBirth = 'User must be at least 13 years old'
+      if (age < 17) {
+        newErrors.dateOfBirth = 'User must be at least 17 years old'
       }
     }
 
@@ -196,7 +196,6 @@ const UserForm = ({ userProfile = 'SUPER_ADMIN', onSubmit, onCancel }) => {
     <div className="user-form-container">
       <div className="form-header">
         <div className="form-title">
-          <UserPlus size={24} />
           <h3>Add New User</h3>
         </div>
         <p className="form-description">

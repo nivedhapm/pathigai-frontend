@@ -1,13 +1,11 @@
 import { useState } from 'react'
-import { Search, UserPlus, Users, UserX } from 'lucide-react'
+import { UserPlus, Users } from 'lucide-react'
 import AddUsersSection from '../components/AddUsersSection'
 import ManageUsersSection from '../components/ManageUsersSection'
-import DeleteUsersSection from '../components/DeleteUsersSection'
 import '../styles/user-management.css'
 
 const UserManagementPage = () => {
   const [activeSection, setActiveSection] = useState('add')
-  const [searchQuery, setSearchQuery] = useState('')
 
   // Navigation tabs configuration
   const navigationTabs = [
@@ -22,12 +20,6 @@ const UserManagementPage = () => {
       label: 'Manage Users',
       icon: Users,
       component: ManageUsersSection
-    },
-    {
-      id: 'delete',
-      label: 'Delete Users',
-      icon: UserX,
-      component: DeleteUsersSection
     }
   ]
 
@@ -36,22 +28,10 @@ const UserManagementPage = () => {
 
   return (
     <div className="user-management-container">
-      {/* Page Header with inline search */}
+      {/* Page Header */}
       <div className="user-management-header">
         <div className="header-top">
           <h1 className="user-management-title">User Management</h1>
-          <div className="header-right">
-            <div className="search-input-container">
-              <Search className="search-icon" size={20} />
-              <input
-                type="text"
-                placeholder="Search users by name, email, or role..."
-                className="search-input"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
         </div>
         <p className="user-management-subtitle">
           Manage user accounts, roles, and permissions across your organization
@@ -78,7 +58,7 @@ const UserManagementPage = () => {
 
       {/* Content Area */}
       <div className="user-management-content">
-        <ActiveComponent searchQuery={searchQuery} />
+        <ActiveComponent />
       </div>
     </div>
   )

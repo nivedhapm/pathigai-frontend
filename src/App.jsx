@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './shared/contexts/ThemeContext'
+import { ToastProvider } from './shared/components'
 import ProtectedRoute from './shared/components/ProtectedRoute'
 import tokenRefreshManager from './shared/services/tokenRefreshManager'
 import authService from './shared/services/authService'
@@ -54,51 +55,53 @@ function App() {
   }, [])
   return (
     <ThemeProvider>
-      <Router>
-        {/* Enhanced token refresh now works completely silently in background */}
-        
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/email-verification" element={<EmailVerificationPage />} />
-          <Route path="/sms-verification" element={<SMSVerificationPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/company-info" element={<CompanyInfoPage />} />
+      <ToastProvider>
+        <Router>
+          {/* Enhanced token refresh now works completely silently in background */}
           
-          {/* Protected Dashboard Routes */}
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* User Management Routes - Restricted to SUPER_ADMIN, ADMIN, MANAGEMENT */}
-          <Route 
-            path="/dashboard/users" 
-            element={
-              <ProtectedRoute allowedProfiles={['SUPER_ADMIN', 'ADMIN', 'MANAGEMENT']}>
-                <DashboardPage content="user-management" />
-              </ProtectedRoute>
-            } 
-          />
-          
-          {/* Future protected routes will be added here */}
-          <Route 
-            path="/dashboard/*" 
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
-      </Router>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/email-verification" element={<EmailVerificationPage />} />
+            <Route path="/sms-verification" element={<SMSVerificationPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/company-info" element={<CompanyInfoPage />} />
+            
+            {/* Protected Dashboard Routes */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* User Management Routes - Restricted to SUPER_ADMIN, ADMIN, MANAGEMENT */}
+            <Route 
+              path="/dashboard/users" 
+              element={
+                <ProtectedRoute allowedProfiles={['SUPER_ADMIN', 'ADMIN', 'MANAGEMENT']}>
+                  <DashboardPage content="user-management" />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Future protected routes will be added here */}
+            <Route 
+              path="/dashboard/*" 
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+        </Router>
+      </ToastProvider>
     </ThemeProvider>
   )
 }

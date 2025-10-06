@@ -1,0 +1,157 @@
+/* Toast Notification Styles */
+.toast {
+  position: fixed;
+  z-index: 9999;
+  min-width: 300px;
+  max-width: 500px;
+  padding: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  font-family: inherit;
+  backdrop-filter: blur(10px);
+}
+
+/* Position variants */
+.toast-top-right {
+  top: 20px;
+  right: 20px;
+}
+
+.toast-top-left {
+  top: 20px;
+  left: 20px;
+}
+
+.toast-bottom-right {
+  bottom: 20px;
+  right: 20px;
+}
+
+.toast-bottom-left {
+  bottom: 20px;
+  left: 20px;
+}
+
+/* Visibility states */
+.toast-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast-hidden {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.toast-top-left.toast-hidden,
+.toast-bottom-left.toast-hidden {
+  transform: translateX(-100%);
+}
+
+/* Type variants */
+.toast-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.toast-info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Toast content */
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  position: relative;
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-message {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: currentColor;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+}
+
+.toast-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 1;
+}
+
+/* Dark theme adjustments */
+body.dark .toast-success {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  border-color: rgba(5, 150, 105, 0.3);
+}
+
+body.dark .toast-error {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+body.dark .toast-info {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .toast {
+    min-width: 280px;
+    max-width: calc(100vw - 40px);
+    left: 20px !important;
+    right: 20px !important;
+    width: auto;
+  }
+  
+  .toast-top-left,
+  .toast-top-right {
+    top: 20px;
+  }
+  
+  .toast-bottom-left,
+  .toast-bottom-right {
+    bottom: 20px;
+  }
+  
+  .toast-content {
+    padding: 14px;
+  }
+  
+  .toast-message {
+    font-size: 13px;
+  }
+}

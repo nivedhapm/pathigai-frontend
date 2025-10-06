@@ -1,7 +1,9 @@
 import { useState, useRef } from 'react'
-import { Upload, FileText, Users, AlertCircle, CheckCircle, X, Download, Eye, EyeOff, ChevronLeft, ChevronRight, Check } from 'lucide-react'
-import { Button } from '../../../shared/components'
+import { Upload, FileText, Users, CircleX, CircleCheckBig, X, Download, Eye, EyeOff, ChevronLeft, ChevronRight, Check, Trash2, CheckCircle } from 'lucide-react'
+import { Button, useToast } from '../../../shared/components'
+import Table from '../../../components/ui/Table/Table'
 import userService from '../../../shared/services/userService'
+import '../styles/bulk-upload.css'
 
 const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
   const [uploadStep, setUploadStep] = useState('upload') // 'upload', 'preview', 'processing', 'results'
@@ -17,6 +19,7 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
   // Password visibility state
   const [showPasswords, setShowPasswords] = useState({})
   const fileInputRef = useRef(null)
+  const { showSuccess, showError } = useToast() // eslint-disable-line no-unused-vars
 
   // Password generation function
   const generateTempPassword = () => {
@@ -324,9 +327,17 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
 
       setUploadResults(results)
       setUploadStep('results')
+      
+      // Show success toast with results
+      if (results.successCount > 0) {
+        showSuccess(`Successfully created ${results.successCount} user${results.successCount > 1 ? 's' : ''}`)
+      }
+      if (results.errorCount > 0) {
+        showError(`${results.errorCount} user${results.errorCount > 1 ? 's' : ''} failed to create`)
+      }
     } catch (error) {
       console.error('Upload failed:', error)
-      alert('Upload failed. Please try again.')
+      showError('Upload failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -350,6 +361,26 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
       ...prev,
       [index]: !prev[index]
     }))
+  }
+
+  // Delete invalid row function
+  const deleteInvalidRow = (rowIndex) => {
+    const updatedResults = validationResults.filter((_, index) => index !== rowIndex)
+    // Update row numbers after deletion
+    const reNumberedResults = updatedResults.map((result, index) => ({
+      ...result,
+      rowNumber: index + 1
+    }))
+    setValidationResults(reNumberedResults)
+    
+    // Show success toast
+    showSuccess('Invalid row deleted successfully')
+    
+    // Reset pagination to first page if current page becomes empty
+    const totalPages = Math.ceil(reNumberedResults.length / recordsPerPage)
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages)
+    }
   }
 
   const downloadSampleCSV = () => {
@@ -390,7 +421,6 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
       <div className="bulk-upload-container">
         <div className="upload-header">
           <div className="upload-title">
-            <Upload size={24} />
             <h3>Bulk Upload Users from CSV</h3>
           </div>
           <p className="upload-description">
@@ -450,7 +480,6 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
       <div className="bulk-upload-container">
         <div className="upload-header">
           <div className="upload-title">
-            <Eye size={24} />
             <h3>Preview & Validate CSV Data</h3>
           </div>
           <p className="upload-description">
@@ -459,13 +488,9 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
         </div>
 
         <div className="validation-summary">
-          <div className="summary-card success">
-            <CheckCircle size={20} />
-            <span>{validCount} Valid Records</span>
-          </div>
-          <div className="summary-card error">
-            <AlertCircle size={20} />
-            <span>{errorCount} Records with Errors</span>
+          <div className="validation-badges">
+            <span className="badge valid">{validCount} Valid Records</span>
+            <span className="badge invalid">{errorCount} Invalid Records</span>
           </div>
         </div>
 
@@ -475,106 +500,120 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
             <p>File: {file?.name} ({validationResults.length} records)</p>
           </div>
 
-          <div className="results-table">
-            <div className="table-header">
-              <span>Row</span>
-              <span>Name</span>
-              <span>Email</span>
-              <span>Gender</span>
-              <span>Work Location</span>
-              <span>Role</span>
-              <span>Profile</span>
-              <span>Temp Password</span>
-              <span>Status</span>
-            </div>
-            <div className="table-body">
-              {getPaginatedData(validationResults).map((result, index) => {
-                const globalIndex = (currentPage - 1) * recordsPerPage + index
-                const tempPassword = generateTempPassword()
-                
-                return (
-                  <div key={result.rowNumber} className={`table-row ${result.isValid ? 'valid' : 'invalid'}`}>
-                    <span className="row-number">{result.rowNumber}</span>
-                    <span className="name-cell">{result.data.fullName}</span>
-                    <span className="email-cell">{result.data.email}</span>
-                    <span className="gender-cell">{result.data.gender}</span>
-                    <span className="location-cell">{result.data.workLocation}</span>
-                    <span className="role-cell">{result.data.role}</span>
-                    <span className="profile-cell">{result.data.profile}</span>
-                    <span className="password-cell">
-                      <div className="password-container">
-                        <span className="password-text">
-                          {showPasswords[globalIndex] ? tempPassword : '••••••••••••'}
-                        </span>
-                        <button
-                          type="button"
-                          className="password-toggle"
-                          onClick={() => togglePasswordVisibility(globalIndex)}
-                        >
-                          {showPasswords[globalIndex] ? <EyeOff size={14} /> : <Eye size={14} />}
-                        </button>
-                      </div>
+          <Table 
+            columns={[
+              { header: 'S.No', accessor: 'sno' },
+              { header: 'Full Name', accessor: 'fullName' },
+              { header: 'Email', accessor: 'email' },
+              { header: 'Gender', accessor: 'gender' },
+              { header: 'Work Location', accessor: 'workLocation' },
+              { header: 'Role', accessor: 'role' },
+              { header: 'Profile', accessor: 'profile' },
+              { header: 'Generated Password', accessor: 'generatedPassword' },
+              { header: 'Status', accessor: 'status' },
+              { header: 'Action', accessor: 'action' }
+            ]}
+            data={getPaginatedData(validationResults).map((result, index) => {
+              const globalIndex = (currentPage - 1) * recordsPerPage + index
+              const actualRowIndex = validationResults.findIndex(r => r.rowNumber === result.rowNumber)
+              const tempPassword = generateTempPassword()
+              
+              return {
+                sno: (currentPage - 1) * recordsPerPage + index + 1,
+                fullName: result.data.fullName,
+                email: result.data.email,
+                gender: result.data.gender,
+                workLocation: result.data.workLocation,
+                role: result.data.role,
+                profile: result.data.profile,
+                generatedPassword: (
+                  <div className="password-container">
+                    <span className="password-text">
+                      {showPasswords[globalIndex] ? tempPassword : '••••••••••••'}
                     </span>
-                    <span className="status-cell">
-                      {result.isValid ? (
-                        <div className="status-valid">
-                          <Check size={16} className="success-icon" />
-                          <span>Valid</span>
-                        </div>
-                      ) : (
-                        <div className="status-invalid">
-                          <X size={16} className="error-icon" />
-                          <div className="error-tooltip">
-                            {result.errors.join(', ')}
-                          </div>
-                        </div>
-                      )}
-                    </span>
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => togglePasswordVisibility(globalIndex)}
+                    >
+                      {showPasswords[globalIndex] ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
                   </div>
-                )
-              })}
-            </div>
+                ),
+                status: result.isValid ? (
+                  <div className="status-valid">
+                    <CircleCheckBig size={16} className="success-icon" />
+                    <span>Valid</span>
+                  </div>
+                ) : (
+                  <div className="status-invalid">
+                    <CircleX size={16} className="error-icon" />
+                    <div className="error-tooltip">
+                      {result.errors.join(', ')}
+                    </div>
+                  </div>
+                ),
+                action: !result.isValid ? (
+                  <button
+                    type="button"
+                    className="delete-row-btn"
+                    onClick={() => deleteInvalidRow(actualRowIndex)}
+                    title="Delete invalid row"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                ) : null,
+                isInvalid: !result.isValid
+              }
+            })}
+            validCount={validCount}
+            invalidCount={errorCount}
+            theme="light"
+          />
             
-            {/* Pagination Controls */}
-            {getTotalPages(validationResults) > 1 && (
-              <div className="table-pagination">
-                <div className="pagination-info">
-                  Showing {(currentPage - 1) * recordsPerPage + 1} to {Math.min(currentPage * recordsPerPage, validationResults.length)} of {validationResults.length} records
-                </div>
-                <div className="pagination-controls">
-                  <button
-                    className="pagination-btn"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronLeft size={16} />
-                    Previous
-                  </button>
-                  
-                  <div className="page-numbers">
-                    {Array.from({ length: getTotalPages(validationResults) }, (_, i) => i + 1).map(page => (
-                      <button
-                        key={page}
-                        className={`page-number ${page === currentPage ? 'active' : ''}`}
-                        onClick={() => handlePageChange(page)}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  <button
-                    className="pagination-btn"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === getTotalPages(validationResults)}
-                  >
-                    Next
-                    <ChevronRight size={16} />
-                  </button>
-                </div>
+          {/* Pagination Controls */}
+          {getTotalPages(validationResults) > 1 && (
+            <div className="table-pagination">
+              <div className="pagination-info">
+                Showing {(currentPage - 1) * recordsPerPage + 1} to {Math.min(currentPage * recordsPerPage, validationResults.length)} of {validationResults.length} records
               </div>
-            )}
-          </div>
+              <div className="pagination-controls">
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="pagination-btn"
+                >
+                  <ChevronLeft size={16} />
+                  Previous
+                </Button>
+                
+                <div className="page-numbers">
+                  {Array.from({ length: getTotalPages(validationResults) }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      className={`page-number ${page === currentPage ? 'active' : ''}`}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === getTotalPages(validationResults)}
+                  className="pagination-btn"
+                >
+                  Next
+                  <ChevronRight size={16} />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="preview-actions">
@@ -683,14 +722,16 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
                     Showing {(currentPage - 1) * recordsPerPage + 1} to {Math.min(currentPage * recordsPerPage, uploadResults.details.length)} of {uploadResults.details.length} records
                   </div>
                   <div className="pagination-controls">
-                    <button
-                      className="pagination-btn"
+                    <Button
+                      variant="secondary"
+                      size="small"
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
+                      className="pagination-btn"
                     >
                       <ChevronLeft size={16} />
                       Previous
-                    </button>
+                    </Button>
                     
                     <div className="page-numbers">
                       {Array.from({ length: getTotalPages(uploadResults.details) }, (_, i) => i + 1).map(page => (
@@ -704,14 +745,16 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
                       ))}
                     </div>
                     
-                    <button
-                      className="pagination-btn"
+                    <Button
+                      variant="secondary"
+                      size="small"
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === getTotalPages(uploadResults.details)}
+                      className="pagination-btn"
                     >
                       Next
                       <ChevronRight size={16} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
