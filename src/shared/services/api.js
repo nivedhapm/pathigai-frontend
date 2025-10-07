@@ -3,6 +3,16 @@ import axios from 'axios'
 // API configuration and base service
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api/v1'
 
+// ✅ Debug logging for environment variables
+console.log('🔧 Environment Debug Info:', {
+  VITE_API_BASE: import.meta.env.VITE_API_BASE,
+  NODE_ENV: import.meta.env.NODE_ENV,
+  MODE: import.meta.env.MODE,
+  PROD: import.meta.env.PROD,
+  DEV: import.meta.env.DEV,
+  FINAL_API_BASE: API_BASE
+})
+
 // Helper to get tokens
 function getAuthToken() {
   return localStorage.getItem('authToken')
