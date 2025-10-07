@@ -1,10 +1,7 @@
 import axios from 'axios'
 
 // API configuration and base service
-// ✅ Force production URL if in production mode
-const API_BASE = import.meta.env.PROD 
-  ? 'http://64.227.142.243:8080/api/v1'  // Production
-  : (import.meta.env.VITE_API_BASE || 'http://localhost:8080/api/v1')  // Development
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api/v1'
 
 // ✅ Debug logging for environment variables
 console.log('🔧 Environment Debug Info:', {
