@@ -73,6 +73,21 @@
   border-color: #8FB7C6;
 }
 
+/* Custom dropdown styling in filter groups */
+.filter-group .custom-dropdown {
+  min-width: 140px;
+}
+
+.filter-group .custom-dropdown-trigger {
+  padding: 8px 12px;
+  border: 2px solid var(--color-border);
+  font-size: 0.9rem;
+}
+
+.filter-group .custom-dropdown-trigger:focus {
+  border-color: #8FB7C6;
+}
+
 /* Users Table */
 .users-table-container {
   background: var(--color-background);

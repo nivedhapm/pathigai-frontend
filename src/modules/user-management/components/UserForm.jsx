@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { User, UserPlus, Upload, Download } from 'lucide-react'
 import { Button } from '../../../shared/components'
+import CustomDropdown from '../../../components/ui/CustomDropdown/CustomDropdown'
+import CustomDatePicker from '../../../components/ui/CustomDatePicker/CustomDatePicker'
 
 // Role and Profile hierarchies as per requirements
 const ROLES = {
@@ -224,13 +226,17 @@ const UserForm = ({ userProfile = 'SUPER_ADMIN', onSubmit, onCancel }) => {
               </div>
               <div className="form-group">
                 <label htmlFor="dateOfBirth">Date of Birth *</label>
-                <input
-                  type="date"
-                  id="dateOfBirth"
+                <CustomDatePicker
+                  value={formData.dateOfBirth ? new Date(formData.dateOfBirth) : null}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      dateOfBirth: e.target.value ? e.target.value.toISOString().split('T')[0] : ''
+                    }))
+                  }}
+                  placeholder="Select date of birth"
+                  error={!!errors.dateOfBirth}
                   name="dateOfBirth"
-                  value={formData.dateOfBirth}
-                  onChange={handleInputChange}
-                  className={errors.dateOfBirth ? 'error' : ''}
                 />
                 {errors.dateOfBirth && <span className="error-message">{errors.dateOfBirth}</span>}
               </div>
@@ -266,19 +272,19 @@ const UserForm = ({ userProfile = 'SUPER_ADMIN', onSubmit, onCancel }) => {
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="gender">Gender *</label>
-                <select
-                  id="gender"
-                  name="gender"
+                <CustomDropdown
+                  options={[
+                    { value: 'MALE', label: 'Male' },
+                    { value: 'FEMALE', label: 'Female' },
+                    { value: 'OTHER', label: 'Other' },
+                    { value: 'PREFER_NOT_TO_SAY', label: 'Prefer not to say' }
+                  ]}
                   value={formData.gender}
                   onChange={handleInputChange}
-                  className={errors.gender ? 'error' : ''}
-                >
-                  <option value="">Select Gender</option>
-                  <option value="MALE">Male</option>
-                  <option value="FEMALE">Female</option>
-                  <option value="OTHER">Other</option>
-                  <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
-                </select>
+                  placeholder="Select Gender"
+                  error={!!errors.gender}
+                  name="gender"
+                />
                 {errors.gender && <span className="error-message">{errors.gender}</span>}
               </div>
               <div className="form-group">
@@ -303,39 +309,33 @@ const UserForm = ({ userProfile = 'SUPER_ADMIN', onSubmit, onCancel }) => {
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="profile">Profile *</label>
-                <select
-                  id="profile"
-                  name="profile"
+                <CustomDropdown
+                  options={getAllowedProfiles().map(profile => ({
+                    value: profile.key,
+                    label: `${profile.label} - ${profile.description}`
+                  }))}
                   value={formData.profile}
                   onChange={handleInputChange}
-                  className={errors.profile ? 'error' : ''}
-                >
-                  <option value="">Select Profile</option>
-                  {getAllowedProfiles().map(profile => (
-                    <option key={profile.key} value={profile.key}>
-                      {profile.label} - {profile.description}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="Select Profile"
+                  error={!!errors.profile}
+                  name="profile"
+                />
                 {errors.profile && <span className="error-message">{errors.profile}</span>}
               </div>
               <div className="form-group">
                 <label htmlFor="role">Role *</label>
-                <select
-                  id="role"
-                  name="role"
+                <CustomDropdown
+                  options={getAllowedRoles().map(role => ({
+                    value: role.key,
+                    label: `${role.label} - ${role.description}`
+                  }))}
                   value={formData.role}
                   onChange={handleInputChange}
-                  className={errors.role ? 'error' : ''}
+                  placeholder="Select Role"
+                  error={!!errors.role}
+                  name="role"
                   disabled={!formData.profile}
-                >
-                  <option value="">Select Role</option>
-                  {getAllowedRoles().map(role => (
-                    <option key={role.key} value={role.key}>
-                      {role.label} - {role.description}
-                    </option>
-                  ))}
-                </select>
+                />
                 {errors.role && <span className="error-message">{errors.role}</span>}
               </div>
             </div>

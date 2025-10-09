@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Download, FileText, Users, AlertCircle } from 'lucide-react'
 import { Button } from '../../../shared/components'
+import CustomDropdown from '../../../components/ui/CustomDropdown/CustomDropdown'
 
 const ExportUsersCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
   const [exportOptions, setExportOptions] = useState({
@@ -290,31 +291,33 @@ const ExportUsersCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
           <div className="filter-grid">
             <div className="filter-group">
               <label>Filter by Profile</label>
-              <select
+              <CustomDropdown
+                options={[
+                  { value: '', label: 'All Profiles' },
+                  ...getAllowedProfiles().map(profile => ({
+                    value: profile.key,
+                    label: profile.label
+                  }))
+                ]}
                 value={exportOptions.filterByProfile}
                 onChange={(e) => handleOptionChange('filterByProfile', e.target.value)}
-              >
-                <option value="">All Profiles</option>
-                {getAllowedProfiles().map(profile => (
-                  <option key={profile.key} value={profile.key}>
-                    {profile.label}
-                  </option>
-                ))}
-              </select>
+                placeholder="All Profiles"
+              />
             </div>
             <div className="filter-group">
               <label>Filter by Role</label>
-              <select
+              <CustomDropdown
+                options={[
+                  { value: '', label: 'All Roles' },
+                  ...Object.entries(ROLES).map(([key, role]) => ({
+                    value: key,
+                    label: role.label
+                  }))
+                ]}
                 value={exportOptions.filterByRole}
                 onChange={(e) => handleOptionChange('filterByRole', e.target.value)}
-              >
-                <option value="">All Roles</option>
-                {Object.entries(ROLES).map(([key, role]) => (
-                  <option key={key} value={key}>
-                    {role.label}
-                  </option>
-                ))}
-              </select>
+                placeholder="All Roles"
+              />
             </div>
             <div className="filter-group">
               <label>Filter by Department</label>

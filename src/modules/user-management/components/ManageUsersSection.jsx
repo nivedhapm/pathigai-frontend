@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Users, Search, Filter, Edit, Trash2, Eye, EyeOff } from 'lucide-react'
 import { Button, useToast } from '../../../shared/components'
+import CustomDropdown from '../../../components/ui/CustomDropdown/CustomDropdown'
 import userService from '../../../shared/services/userService'
 import '../styles/manage-users.css'
 
@@ -134,30 +135,30 @@ const ManageUsersSection = () => {
         <div className="filters-container">
           <div className="filter-group">
             <Filter size={16} />
-            <select
+            <CustomDropdown
+              options={[
+                { value: '', label: 'All Roles' },
+                ...roles.map(role => ({ value: role, label: role }))
+              ]}
               value={roleFilter}
               onChange={(e) => handleRoleFilter(e.target.value)}
+              placeholder="All Roles"
               className="filter-select"
-            >
-              <option value="">All Roles</option>
-              {roles.map(role => (
-                <option key={role} value={role}>{role}</option>
-              ))}
-            </select>
+            />
           </div>
 
           <div className="filter-group">
             <Filter size={16} />
-            <select
+            <CustomDropdown
+              options={[
+                { value: '', label: 'All Profiles' },
+                ...profiles.map(profile => ({ value: profile, label: profile }))
+              ]}
               value={profileFilter}
               onChange={(e) => handleProfileFilter(e.target.value)}
+              placeholder="All Profiles"
               className="filter-select"
-            >
-              <option value="">All Profiles</option>
-              {profiles.map(profile => (
-                <option key={profile} value={profile}>{profile}</option>
-              ))}
-            </select>
+            />
           </div>
 
           {(searchTerm || roleFilter || profileFilter) && (
@@ -210,30 +211,26 @@ const ManageUsersSection = () => {
                     <span className="phone-cell">{user.phone}</span>
                     <span className="role-cell">
                       {editingUser?.id === user.id ? (
-                        <select
+                        <CustomDropdown
+                          options={roles.map(role => ({ value: role, label: role }))}
                           value={editingUser.role}
                           onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
+                          placeholder="Select Role"
                           className="edit-select"
-                        >
-                          {roles.map(role => (
-                            <option key={role} value={role}>{role}</option>
-                          ))}
-                        </select>
+                        />
                       ) : (
                         <span className="role-badge">{user.role}</span>
                       )}
                     </span>
                     <span className="profile-cell">
                       {editingUser?.id === user.id ? (
-                        <select
+                        <CustomDropdown
+                          options={profiles.map(profile => ({ value: profile, label: profile }))}
                           value={editingUser.profile}
                           onChange={(e) => setEditingUser({...editingUser, profile: e.target.value})}
+                          placeholder="Select Profile"
                           className="edit-select"
-                        >
-                          {profiles.map(profile => (
-                            <option key={profile} value={profile}>{profile}</option>
-                          ))}
-                        </select>
+                        />
                       ) : (
                         <span className="profile-badge">{user.profile}</span>
                       )}

@@ -4,6 +4,7 @@ import DashboardLayout from '../components/DashboardLayout'
 import authService from '../../../shared/services/authService'
 import dashboardService from '../../../shared/services/dashboardService'
 import { UserManagementPage } from '../../user-management'
+import SettingsPage from './SettingsPage'
 
 // Import all dashboard components
 import SuperAdminDashboard from './SuperAdminDashboard'
@@ -19,6 +20,11 @@ const renderDashboardComponent = (profile, content = null) => {
   // Handle specific content types (like user management)
   if (content === 'user-management') {
     return <UserManagementPage />
+  }
+
+  // Handle settings content
+  if (content === 'settings') {
+    return <SettingsPage />
   }
 
   // Handle APPLICANT role (no profile)

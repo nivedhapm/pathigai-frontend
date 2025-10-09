@@ -90,6 +90,16 @@ function App() {
               } 
             />
             
+            {/* Settings Routes - Restricted to SUPER_ADMIN, ADMIN */}
+            <Route 
+              path="/dashboard/settings" 
+              element={
+                <ProtectedRoute allowedProfiles={['SUPER_ADMIN', 'ADMIN']}>
+                  <DashboardPage content="settings" />
+                </ProtectedRoute>
+              } 
+            />
+            
             {/* Future protected routes will be added here */}
             <Route 
               path="/dashboard/*" 

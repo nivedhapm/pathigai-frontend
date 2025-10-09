@@ -5,6 +5,7 @@ import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
 import TopNav from '../../../components/common/TopNav/TopNav'
 import LogoSection from '../../../components/common/LogoSection/LogoSection'
 import Footer from '../../../components/common/Footer/Footer'
+import CustomDropdown from '../../../components/ui/CustomDropdown/CustomDropdown'
 import authService from '../../../shared/services/authService'
 import userService from '../../../shared/services/userService'
 import logo from '../../../assets/logo.svg'
@@ -119,28 +120,33 @@ const CompanyInfoPage = () => {
             />
 
             <label htmlFor="industry">Industry*</label>
-            <select
-              id="industry"
-              required
+            <CustomDropdown
+              options={[
+                { value: 'Education', label: 'Education' },
+                { value: 'Technology', label: 'Technology' },
+                { value: 'Healthcare', label: 'Healthcare' },
+                { value: 'Finance', label: 'Finance' },
+                { value: 'Manufacturing', label: 'Manufacturing' },
+                { value: 'Retail', label: 'Retail' },
+                { value: 'Fashion', label: 'Fashion' },
+                { value: 'Construction', label: 'Construction' },
+                { value: 'IT', label: 'IT' },
+                { value: 'Food and Beverage', label: 'Food and Beverage' },
+                { value: 'Consulting', label: 'Consulting' },
+                { value: 'Non-Profit', label: 'Non-Profit' },
+                { value: 'Government', label: 'Government' },
+                { value: 'Other', label: 'Other' }
+              ]}
               value={formData.industry}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Industry</option>
-              <option value="Education">Education</option>
-              <option value="Technology">Technology</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Finance">Finance</option>
-              <option value="Manufacturing">Manufacturing</option>
-              <option value="Retail">Retail</option>
-              <option value="Fashion">Fashion</option>
-              <option value="Construction">Construction</option>
-              <option value="IT">IT</option>
-              <option value="Food and Beverage">Food and Beverage</option>
-              <option value="Consulting">Consulting</option>
-              <option value="Non-Profit">Non-Profit</option>
-              <option value="Government">Government</option>
-              <option value="Other">Other</option>
-            </select>
+              onChange={(e) => {
+                setFormData(prev => ({
+                  ...prev,
+                  industry: e.target.value
+                }))
+              }}
+              placeholder="Select Industry"
+              name="industry"
+            />
 
             <label htmlFor="companyWebsite">Company Website*</label>
             <input

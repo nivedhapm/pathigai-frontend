@@ -134,9 +134,7 @@ const Sidebar = ({
                 >
                   <IconComponent className="nav-item-icon" size={20} />
                   <span className="nav-item-text">{item.label}</span>
-                  {!sidebarCollapsed && (
-                    <ChevronRight className="nav-item-arrow" size={16} />
-                  )}
+                  <ChevronRight className="nav-item-arrow" size={16} />
                 </Link>
               )
             })}
@@ -151,24 +149,29 @@ const Sidebar = ({
             onClick={(e) => {
               e.stopPropagation() // Prevent sidebar toggle
               
-              // Only allow dropdown to open when sidebar is expanded
-              if (!sidebarCollapsed) {
+              // Only allow dropdown when sidebar is expanded (not collapsed)
+              // On mobile: always allow (when mobile menu is open)
+              // On desktop: only when sidebar is NOT collapsed
+              if (window.innerWidth <= 768 && mobileMenuOpen) {
+                // Mobile: allow when mobile menu is open
+                setProfileDropdownOpen(!profileDropdownOpen)
+              } else if (window.innerWidth > 768 && !sidebarCollapsed) {
+                // Desktop: only when sidebar is expanded
                 setProfileDropdownOpen(!profileDropdownOpen)
               }
+              // If sidebar is collapsed on desktop, do nothing (disabled)
             }}
           >
             <div className="user-avatar">
               {user?.fullName?.charAt(0)?.toUpperCase() || 'N'}
             </div>
-            {!sidebarCollapsed && (
-              <div className="user-info">
-                <div className="user-name">{user?.fullName || 'Nivi'}</div>
-                <div className="user-role">{user?.role || user?.profile || 'SUPER_ADMIN'}</div>
-              </div>
-            )}
+            <div className="user-info">
+              <div className="user-name">{user?.fullName || 'Nivi'}</div>
+              <div className="user-role">{user?.role || user?.profile || 'SUPER_ADMIN'}</div>
+            </div>
             
-            {/* Profile Dropdown - Only show when sidebar is expanded */}
-            {profileDropdownOpen && !sidebarCollapsed && (
+            {/* Profile Dropdown - Show on mobile too */}
+            {profileDropdownOpen && (
               <div className="profile-dropdown">
                 <button className="profile-dropdown-item">
                   <User size={16} />
