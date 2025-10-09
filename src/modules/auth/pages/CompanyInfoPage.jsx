@@ -127,7 +127,6 @@ const CompanyInfoPage = () => {
             >
               <option value="">Select Industry</option>
               <option value="Education">Education</option>
-              <option value="Information Technology">Information Technology</option>
               <option value="Healthcare">Healthcare</option>
               <option value="Finance">Finance</option>
               <option value="Manufacturing">Manufacturing</option>
@@ -135,7 +134,6 @@ const CompanyInfoPage = () => {
               <option value="Fashion">Fashion</option>
               <option value="Construction">Construction</option>
               <option value="IT">IT</option>
-              <option value="Food and Beverages">Food and Beverages</option>
               <option value="Consulting">Consulting</option>
               <option value="Non-Profit">Non-Profit</option>
               <option value="Government">Government</option>

@@ -592,8 +592,10 @@ body.dark .profile-dropdown-item:hover {
 }
 
 body.dark .profile-dropdown-item.logout {
+  color: #ef4444;
   border-top: 1px solid #404040;
 }
+
 
 .user-name {
   font-weight: 600;
