@@ -1,11 +1,7 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
-import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
-import TopNav from '../../../components/common/TopNav/TopNav'
-import LogoSection from '../../../components/common/LogoSection/LogoSection'
-import Footer from '../../../components/common/Footer/Footer'
-import CustomDropdown from '../../../components/ui/CustomDropdown/CustomDropdown'
+import { FloatingElements, ThemeToggle, TopNav, LogoSection, Footer } from '../../../components/layout'
+import { CustomDropdown } from '../../../components/ui'
 import authService from '../../../shared/services/authService'
 import userService from '../../../shared/services/userService'
 import logo from '../../../assets/logo.svg'
@@ -152,7 +148,7 @@ const CompanyInfoPage = () => {
             <input
               type="url"
               id="companyWebsite"
-              placeholder="https://www.company.com"
+              placeholder="Enter your company website/url"
               value={formData.companyWebsite}
               onChange={handleInputChange}
             />

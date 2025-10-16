@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
-import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
-import TopNav from '../../../components/common/TopNav/TopNav'
-import LogoSection from '../../../components/common/LogoSection/LogoSection'
-import Footer from '../../../components/common/Footer/Footer'
+import { FloatingElements, ThemeToggle, TopNav, LogoSection, Footer } from '../../../components/layout'
+
+
+
+
+
 import authService from '../../../shared/services/authService'
 import logo from '../../../assets/logo.svg'
 

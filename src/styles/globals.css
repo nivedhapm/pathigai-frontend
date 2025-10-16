@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap');
 @import 'react-datepicker/dist/react-datepicker.css';
-@import './dropdown.css';
+
 
 * {
   margin: 0;
@@ -414,8 +414,7 @@ body.dark .change-link {
 .form-box input[type="email"],
 .form-box input[type="tel"],
 .form-box input[type="password"],
-.form-box input[type="url"],
-.form-box select {
+.form-box input[type="url"] {
   width: 100%;
   padding: 12px;
   border: 1px solid #ccc;
@@ -425,15 +424,13 @@ body.dark .change-link {
   transition: all 0.3s ease;
 }
 
-.form-box input:focus,
-.form-box select:focus {
+.form-box input:focus {
   outline: none;
   border-color: #0077cc;
   box-shadow: 0 0 0 3px rgba(0,119,204,0.1);
 }
 
-body.dark .form-box input,
-body.dark .form-box select {
+body.dark .form-box input {
   background: #3a3a3a;
   border: 1px solid #555;
   color: #fff;
@@ -444,18 +441,6 @@ body.dark .form-box select {
   margin-bottom: 5px;
   font-weight: 600;
   font-size: 14px;
-}
-
-/* Select Dropdown */
-.form-box select {
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-color: #fff;
-  background-size: 16px;
-  padding-right: 40px;
 }
 
 /* Checkbox */
@@ -505,7 +490,7 @@ body.dark .forgot a {
 }
 
 /* Buttons - Updated with new styling */
-.form-box button {
+.form-box button:not(.custom-dropdown-item):not(.custom-dropdown-trigger) {
   width: 100%;
   padding: 12px;
   background: #8FB7C6;
@@ -520,17 +505,17 @@ body.dark .forgot a {
   box-shadow: 0 4px 12px rgba(143, 183, 198, 0.4);
 }
 
-.form-box button:hover {
+.form-box button:not(.custom-dropdown-item):not(.custom-dropdown-trigger):hover {
   background: #7ba5b4;
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
 }
 
-.form-box button:active {
+.form-box button:not(.custom-dropdown-item):not(.custom-dropdown-trigger):active {
   transform: translateY(0);
 }
 
-.form-box button:disabled {
+.form-box button:not(.custom-dropdown-item):not(.custom-dropdown-trigger):disabled {
   background: rgb(174, 175, 176);
   cursor: not-allowed;
   transform: none;
@@ -538,17 +523,17 @@ body.dark .forgot a {
 }
 
 /* Dark theme buttons */
-body.dark .form-box button {
+body.dark .form-box button:not(.custom-dropdown-item):not(.custom-dropdown-trigger) {
   background: #111;
   box-shadow: 0 4px 12px rgba(17, 17, 17, 0.6);
 }
 
-body.dark .form-box button:hover {
+body.dark .form-box button:not(.custom-dropdown-item):not(.custom-dropdown-trigger):hover {
   background: #222;
   box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
 }
 
-body.dark .form-box button:disabled {
+body.dark .form-box button:not(.custom-dropdown-item):not(.custom-dropdown-trigger):disabled {
   background: rgb(174, 175, 176);
   box-shadow: none;
 }

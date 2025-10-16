@@ -57,3 +57,6 @@ export const ToastProvider = ({ children }) => {
     </ToastContext.Provider>
   )
 }
+
+// Default export for easier importing
+export default ToastProvider

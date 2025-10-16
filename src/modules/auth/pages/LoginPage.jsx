@@ -1,11 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
-import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
-import LogoSection from '../../../components/common/LogoSection/LogoSection'
-import Footer from '../../../components/common/Footer/Footer'
-import PasswordInput from '../../../components/ui/PasswordInput/PasswordInput'
-import Recaptcha from '../../../components/ui/Recaptcha/Recaptcha'
+import { FloatingElements, ThemeToggle, LogoSection, Footer } from '../../../components/layout'
+import { PasswordInput, Recaptcha } from '../../../components/ui'
 import authService from '../../../shared/services/authService'
 import userService from '../../../shared/services/userService'
 

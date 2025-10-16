@@ -1,12 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
-import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
-import LogoSection from '../../../components/common/LogoSection/LogoSection'
-import Footer from '../../../components/common/Footer/Footer'
-import PasswordInput from '../../../components/ui/PasswordInput/PasswordInput'
-import PasswordStrengthIndicator from '../../../components/ui/PasswordStrengthIndicator/PasswordStrengthIndicator'
-import Recaptcha from '../../../components/ui/Recaptcha/Recaptcha'
+import { FloatingElements, ThemeToggle, LogoSection, Footer } from '../../../components/layout'
+import { PasswordInput, PasswordStrengthIndicator, Recaptcha } from '../../../components/ui'
 import authService from '../../../shared/services/authService'
 
 const SignupPage = () => {

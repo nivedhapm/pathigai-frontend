@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import DatePicker from 'react-datepicker';
 import { ChevronDown } from 'lucide-react';
-import '../../../styles/dropdown.css';
+import '../CustomDatePicker/CustomDatePicker.css';
 
 // Custom input component for DatePicker
 const CustomInput = forwardRef(({ value, onClick, placeholder, disabled, error, className = "" }, ref) => (

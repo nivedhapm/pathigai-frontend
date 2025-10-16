@@ -6,7 +6,7 @@ import dashboardService from '../../../shared/services/dashboardService'
 import TopNav from './TopNav'
 import Sidebar from './Sidebar'
 import ContentArea from './ContentArea'
-import Footer from '../../../components/common/Footer/Footer'
+import { Footer } from '../../../components/layout'
 import '../styles/dashboard.css'
 
 // Simple navigation structure - only Dashboard, User Management, and Settings

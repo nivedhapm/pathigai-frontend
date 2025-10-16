@@ -1,5 +1,5 @@
 import { Menu, X, Bell } from 'lucide-react'
-import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
+import { ThemeToggle } from '../../../components/layout'
 import '../styles/dashboard.css'
 
 const TopNav = ({ 

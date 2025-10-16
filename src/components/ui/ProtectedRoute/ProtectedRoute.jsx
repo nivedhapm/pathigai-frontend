@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { Alert, Snackbar } from '@mui/material'
-import authService from '../services/authService'
-import sessionService from '../services/sessionService'
+import authService from '../../../shared/services/authService'
+import sessionService from '../../../shared/services/sessionService'
 
 const ProtectedRoute = ({ children, requiredProfile = null, requiredRole = null, allowedProfiles = null }) => {
   const [user, setUser] = useState(null)

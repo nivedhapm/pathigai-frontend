@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
-import '../../../styles/dropdown.css';
+import '../CustomDropdown/CustomDropdown.css';
 
 const CustomDropdown = ({ 
   options = [], 

@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react'
 import { Upload, FileText, Users, CircleX, CircleCheckBig, X, Download, Eye, EyeOff, ChevronLeft, ChevronRight, Check, Trash2, CheckCircle } from 'lucide-react'
-import { Button, useToast } from '../../../shared/components'
-import Table from '../../../components/ui/Table/Table'
+import { Button, useToast, Table } from '../../../components/ui'
 import userService from '../../../shared/services/userService'
 import '../styles/bulk-upload.css'
 

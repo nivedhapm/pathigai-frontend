@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { UserPlus, Upload, ArrowLeft } from 'lucide-react'
-import { Button } from '../../../shared/components'
+import { Button } from '../../../components/ui'
 import UserForm from './UserForm'
 import BulkUploadCSV from './BulkUploadCSV'
 import userService from '../../../shared/services/userService'

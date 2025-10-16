@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
-import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
-import TopNav from '../../../components/common/TopNav/TopNav'
-import LogoSection from '../../../components/common/LogoSection/LogoSection'
-import Footer from '../../../components/common/Footer/Footer'
-import OTPInput from '../../../components/ui/OTPInput/OTPInput'
+import { FloatingElements, ThemeToggle, TopNav, LogoSection, Footer } from '../../../components/layout'
+import { OTPInput } from '../../../components/ui'
 import authService from '../../../shared/services/authService'
 import logo from '../../../assets/logo.svg'
 

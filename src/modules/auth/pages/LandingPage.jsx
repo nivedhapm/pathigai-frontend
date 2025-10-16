@@ -1,8 +1,5 @@
 import { Link } from 'react-router-dom'
-import FloatingElements from '../../../components/common/FloatingElements/FloatingElements'
-import ThemeToggle from '../../../components/common/ThemeToggle/ThemeToggle'
-import LogoSection from '../../../components/common/LogoSection/LogoSection'
-import Footer from '../../../components/common/Footer/Footer'
+import { FloatingElements, ThemeToggle, LogoSection, Footer } from '../../../components/layout'
 
 const LandingPage = () => {
   return (

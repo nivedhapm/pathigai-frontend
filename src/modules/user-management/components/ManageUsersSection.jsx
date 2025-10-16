@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Users, Search, Filter, Edit, Trash2, Eye, EyeOff } from 'lucide-react'
-import { Button, useToast } from '../../../shared/components'
-import CustomDropdown from '../../../components/ui/CustomDropdown/CustomDropdown'
+import { Button, useToast, CustomDropdown } from '../../../components/ui'
 import userService from '../../../shared/services/userService'
 import '../styles/manage-users.css'
 

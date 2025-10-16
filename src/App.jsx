@@ -1,10 +1,9 @@
 import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ThemeProvider } from './shared/contexts/ThemeContext'
-import { ToastProvider } from './shared/components'
-import ProtectedRoute from './shared/components/ProtectedRoute'
-import tokenRefreshManager from './shared/services/tokenRefreshManager'
+import { ToastProvider, ProtectedRoute } from './components/ui'
 import authService from './shared/services/authService'
+import tokenRefreshManager from './shared/services/tokenRefreshManager'
 import LandingPage from './modules/auth/pages/LandingPage'
 import LoginPage from './modules/auth/pages/LoginPage'
 import SignupPage from './modules/auth/pages/SignupPage'
@@ -57,8 +56,6 @@ function App() {
     <ThemeProvider>
       <ToastProvider>
         <Router>
-          {/* Enhanced token refresh now works completely silently in background */}
-          
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />

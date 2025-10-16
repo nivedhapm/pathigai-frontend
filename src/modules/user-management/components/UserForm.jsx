@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { User, UserPlus, Upload, Download } from 'lucide-react'
-import { Button } from '../../../shared/components'
-import CustomDropdown from '../../../components/ui/CustomDropdown/CustomDropdown'
-import CustomDatePicker from '../../../components/ui/CustomDatePicker/CustomDatePicker'
+import { Button } from '../../../components/ui'
+import { CustomDropdown, CustomDatePicker } from '../../../components/ui'
 
 // Role and Profile hierarchies as per requirements
 const ROLES = {

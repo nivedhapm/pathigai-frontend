@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Download, FileText, Users, AlertCircle } from 'lucide-react'
-import { Button } from '../../../shared/components'
-import CustomDropdown from '../../../components/ui/CustomDropdown/CustomDropdown'
+import { Button, CustomDropdown } from '../../../components/ui'
 
 const ExportUsersCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
   const [exportOptions, setExportOptions] = useState({
