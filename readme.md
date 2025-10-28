@@ -744,11 +744,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Vercel** for deployment platform
 
 ---
-
 <div align="center">
 
-**Pathigai - Tracking Every Step to Success**
+**Made for comprehensive training management**
 
-Made with precision and care for the education sector.
+Star this repo if you find it helpful!
 
 </div>
