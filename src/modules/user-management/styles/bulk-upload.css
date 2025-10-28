@@ -179,32 +179,18 @@
   min-width: 100px;
 }
 
-.password-toggle,
-.password-refresh {
+.password-toggle {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px;
+  padding: 2px;
   color: #6b7280;
   display: flex;
   align-items: center;
-  border-radius: 4px;
-  transition: all 0.2s ease;
 }
 
 .password-toggle:hover {
   color: #374151;
-  background: #f3f4f6;
-}
-
-.password-refresh {
-  color: #3b82f6;
-}
-
-.password-refresh:hover {
-  color: #1d4ed8;
-  background: #eff6ff;
-  transform: rotate(90deg);
 }
 
 /* Status styles */
@@ -609,26 +595,6 @@ body.dark .results-timestamp {
 
 body.dark .results-actions {
   border-top-color: #333333;
-}
-
-/* Dark theme for password controls */
-body.dark .password-toggle,
-body.dark .password-refresh {
-  color: #9ca3af;
-}
-
-body.dark .password-toggle:hover {
-  color: #d1d5db;
-  background: #374151;
-}
-
-body.dark .password-refresh {
-  color: #60a5fa;
-}
-
-body.dark .password-refresh:hover {
-  color: #93c5fd;
-  background: #1e3a8a;
 }
 
 /* Responsive design */

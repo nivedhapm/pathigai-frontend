@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Upload, FileText, Users, CircleX, CircleCheckBig, X, Download, Eye, EyeOff, ChevronLeft, ChevronRight, Check, Trash2, CheckCircle, RefreshCw } from 'lucide-react'
+import { Upload, FileText, Users, CircleX, CircleCheckBig, X, Download, Eye, EyeOff, ChevronLeft, ChevronRight, Check, Trash2, CheckCircle } from 'lucide-react'
 import { Button, useToast, Table } from '../../../components/ui'
 import userService from '../../../shared/services/userService'
 import '../styles/bulk-upload.css'
@@ -17,8 +17,6 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
   const [recordsPerPage] = useState(10)
   // Password visibility state
   const [showPasswords, setShowPasswords] = useState({})
-  // Generated passwords storage - persistent across renders
-  const [generatedPasswords, setGeneratedPasswords] = useState({})
   const fileInputRef = useRef(null)
   const { showSuccess, showError } = useToast() // eslint-disable-line no-unused-vars
 
@@ -165,14 +163,6 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
 
   const validateCSVData = (data) => {
     const currentLevel = PROFILES[userProfile]?.level || 0
-    const passwords = {}
-    
-    // Generate passwords for all rows initially
-    data.forEach((row, index) => {
-      passwords[index] = generateTempPassword()
-    })
-    setGeneratedPasswords(passwords)
-    
     const results = data.map(row => {
       const errors = []
       const warnings = []
@@ -296,15 +286,10 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
       // Process each valid row
       for (const validation of validRows) {
         try {
-          // Get the actual row index in the original results array
-          const actualRowIndex = validationResults.findIndex(r => r.rowNumber === validation.rowNumber)
-          // Use the stored password for this row
-          const storedPassword = generatedPasswords[actualRowIndex] || generateTempPassword()
-          
           // Add password to user data
           const userDataWithPassword = {
             ...validation.data,
-            temporaryPassword: storedPassword
+            temporaryPassword: generateTempPassword()
           }
 
           // Create user via API
@@ -377,14 +362,6 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
     }))
   }
 
-  // Refresh password for specific row
-  const refreshPassword = (rowIndex) => {
-    setGeneratedPasswords(prev => ({
-      ...prev,
-      [rowIndex]: generateTempPassword()
-    }))
-  }
-
   // Delete invalid row function
   const deleteInvalidRow = (rowIndex) => {
     const updatedResults = validationResults.filter((_, index) => index !== rowIndex)
@@ -394,14 +371,6 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
       rowNumber: index + 1
     }))
     setValidationResults(reNumberedResults)
-    
-    // Update generated passwords to match new indices
-    const updatedPasswords = {}
-    reNumberedResults.forEach((_, index) => {
-      const originalIndex = index < rowIndex ? index : index + 1
-      updatedPasswords[index] = generatedPasswords[originalIndex] || generateTempPassword()
-    })
-    setGeneratedPasswords(updatedPasswords)
     
     // Show success toast
     showSuccess('Invalid row deleted successfully')
@@ -440,7 +409,6 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
     setUploadResults(null)
     setCurrentPage(1)
     setShowPasswords({})
-    setGeneratedPasswords({})
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -547,7 +515,7 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
             data={getPaginatedData(validationResults).map((result, index) => {
               const globalIndex = (currentPage - 1) * recordsPerPage + index
               const actualRowIndex = validationResults.findIndex(r => r.rowNumber === result.rowNumber)
-              const storedPassword = generatedPasswords[actualRowIndex] || generateTempPassword()
+              const tempPassword = generateTempPassword()
               
               return {
                 sno: (currentPage - 1) * recordsPerPage + index + 1,
@@ -560,23 +528,14 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
                 generatedPassword: (
                   <div className="password-container">
                     <span className="password-text">
-                      {showPasswords[globalIndex] ? storedPassword : '••••••••••••'}
+                      {showPasswords[globalIndex] ? tempPassword : '••••••••••••'}
                     </span>
                     <button
                       type="button"
                       className="password-toggle"
                       onClick={() => togglePasswordVisibility(globalIndex)}
-                      title={showPasswords[globalIndex] ? "Hide password" : "Show password"}
                     >
                       {showPasswords[globalIndex] ? <EyeOff size={14} /> : <Eye size={14} />}
-                    </button>
-                    <button
-                      type="button"
-                      className="password-refresh"
-                      onClick={() => refreshPassword(actualRowIndex)}
-                      title="Generate new password"
-                    >
-                      <RefreshCw size={14} />
                     </button>
                   </div>
                 ),
