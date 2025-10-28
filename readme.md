@@ -2,7 +2,7 @@
 
 # Pathigai (பதிகை) - Frontend
 
-<img src="https://via.placeholder.com/80x80?text=Pathigai" alt="Pathigai Logo" width="80" />
+<img src="https://raw.githubusercontent.com/nivedhapm/pathigai-logo/main/pathigai-logo.png" alt="Pathigai Logo" width="80"/>
 
 **Track. Train. Transform. | Guiding Every Step to Success.**
 
@@ -46,12 +46,12 @@ A comprehensive Student Progress Tracking System from registration to placement.
 **Pathigai** (பதிகை) meaning "a trace, log, or record" - is a B2B web application designed to track students' complete training journey from initial application through to placement. Built for training institutions and organizations, it provides role-based dashboards for Students, Faculty, HR, Admins, Interview Panelists, and Mentors.
 
 The application serves as a centralized platform for managing:
-- Student registration and onboarding
+- Student onboarding
+- Task management
 - Training progress tracking
 - Performance analytics
 - Interview scheduling and feedback
 - Placement management
-- Mentorship programs
 
 ---
 
@@ -201,12 +201,7 @@ pathigai-frontend/
 │   │   └── globals.css                   # Global styles
 │   ├── App.jsx                           # Main app component
 │   └── main.jsx                          # Application entry point
-├── docs/                                 # Documentation
-│   ├── USER_MANAGEMENT_STATUS.md
-│   ├── USER_MANAGEMENT_IMPLEMENTATION.md
-│   ├── NAVIGATION_STRUCTURE.md
-│   ├── TOKEN_REFRESH_TESTING.md
-│   └── BACKEND_FRONTEND_SYNC.md
+│
 ├── .env                                  # Environment variables
 ├── .gitignore
 ├── eslint.config.js                      # ESLint configuration
@@ -554,140 +549,45 @@ git merge dev
 git push origin main
 ```
 
-### Commit Message Convention
-
-```
-feat: Add new feature
-fix: Fix bug in component
-docs: Update documentation
-style: Format code
-refactor: Refactor component
-test: Add tests
-chore: Update dependencies
-```
-
 ---
-
-## Development Guidelines
-
-### Code Style
-
-- Follow ESLint configuration
-- Use functional components with hooks
-- Implement proper error handling
-- Add PropTypes or TypeScript types
-- Write meaningful commit messages
-- Keep components focused and reusable
-
-### Component Structure
-
-```jsx
-// Component template
-import { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
-import './ComponentName.css'
-
-const ComponentName = ({ prop1, prop2 }) => {
-  const [state, setState] = useState(initialState)
-  
-  useEffect(() => {
-    // Side effects
-  }, [dependencies])
-  
-  const handleAction = () => {
-    // Event handlers
-  }
-  
-  return (
-    <div className="component-name">
-      {/* JSX */}
-    </div>
-  )
-}
-
-ComponentName.propTypes = {
-  prop1: PropTypes.string.isRequired,
-  prop2: PropTypes.number
-}
-
-export default ComponentName
-```
-
-### File Naming
-
-- Components: PascalCase (e.g., `UserForm.jsx`)
-- Services: camelCase (e.g., `authService.js`)
-- Styles: kebab-case (e.g., `user-form.css`)
-- Constants: UPPER_SNAKE_CASE (e.g., `API_CONSTANTS.js`)
-
-### Best Practices
-
-- Use semantic HTML
-- Implement accessibility features
-- Optimize performance with React.memo
-- Handle loading and error states
-- Validate user input
-- Sanitize data before API calls
-- Use environment variables for configuration
-- Implement proper authentication checks
-- Write self-documenting code
-- Add comments for complex logic
-
----
-
 ## Upcoming Features
 
-### Phase 2 (In Development)
+### In Progress
 
-**Application Management**
-- Student application portal
-- Application submission and tracking
-- Document upload and verification
-- Application status management
+- User profile update and delete operations
+- User search and filtering
 
-**Interview Management**
+### Planned Features
+
+**Phase 2: Application & Interview Management**
+- Application submission workflow
 - Interview scheduling system
-- Panelist assignment
-- Interview feedback collection
-- Result processing
+- Panel assignment
+- Feedback collection
+- Status tracking
 
-**Trainee Onboarding**
-- Student profile creation
-- Batch assignment
-- Attendance tracking
-- Performance monitoring
+**Phase 3: Training Management**
+- Trainee onboarding workflow
+- Batch management
+- Attendance tracking (Check-in/Check-out)
+- Faculty assignment
 
-### Phase 3 (Planned)
-
-**Assignment System**
-- Assignment creation and distribution
-- Submission management
-- Auto-grading for coding assignments
-- Feedback and review system
-
-**Task Tracking**
-- Daily coding problems
-- Coding contest integration
+**Phase 4: Task & Performance**
+- Assignment creation and submission
+- Contest management
 - Seminar scheduling
-- Progress tracking
+- Monthly performance evaluation
 
-**Analytics & Reporting**
-- Performance dashboards
-- Progress visualization
-- Custom report generation
-- Data export capabilities
+**Phase 5: Placement Management**
+- Student shortlisting
+- Placement status tracking
+- Offer management
 
-**Placement Management**
-- Company onboarding
-- Job posting management
-- Application tracking
-- Placement statistics
-
-**Mentorship System**
-- Mentor-student assignment
-- One-on-one session scheduling
-- Feedback and progress tracking
-- Communication platform
+**Phase 6: Advanced Features**
+- Real-time notifications (WebSocket)
+- Analytics dashboard
+- Report generation (PDF/Excel)
+- Mentorship session tracking
 
 ---
 
