@@ -13,7 +13,7 @@ A comprehensive Student Progress Tracking System from registration to placement.
 [![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?style=flat&logo=vite)](https://vitejs.dev/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[Live Demo](#) • [Backend Repo](https://github.com/nivedhapm/pathigai-backend) • [Report Issue](https://github.com/nivedhapm/pathigai-frontend/issues)
+[Live Demo](https://pathigai.app) • [Backend Repo](https://github.com/nivedhapm/pathigai-backend) • [Report Issue](https://github.com/nivedhapm/pathigai-frontend/issues)
 
 </div>
 
