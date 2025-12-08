@@ -4,6 +4,7 @@ import { FloatingElements, ThemeToggle, TopNav, LogoSection, Footer } from '../.
 import { OTPInput } from '../../../components/ui'
 import authService from '../../../shared/services/authService'
 import userService from '../../../shared/services/userService'
+import { useToast } from '../../../components/ui/Toast/ToastProvider'
 import logo from '../../../assets/logo.svg'
 
 const EmailVerificationPage = () => {
@@ -115,7 +116,7 @@ const EmailVerificationPage = () => {
             // Login successful - show popup and redirect to dashboard
             const userProfile = userService.getSimulatedUserProfile()
             const dashboardRoute = userService.getDashboardRoute(userProfile.primaryProfile)
-            alert('Successfully logged in.')
+            showSuccess('Successfully logged in.')
             navigate(dashboardRoute, { replace: true })
           }
         }

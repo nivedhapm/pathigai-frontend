@@ -4,6 +4,7 @@ import { FloatingElements, ThemeToggle, TopNav, LogoSection, Footer } from '../.
 import { OTPInput } from '../../../components/ui'
 import authService from '../../../shared/services/authService'
 import userService from '../../../shared/services/userService'
+import { useToast } from '../../../components/ui/Toast/ToastProvider'
 import logo from '../../../assets/logo.svg'
 
 const SMSVerificationPage = () => {
@@ -200,7 +201,7 @@ const SMSVerificationPage = () => {
               const userProfile = userService.getSimulatedUserProfile() // TODO: Get from API
               const dashboardRoute = userService.getDashboardRoute(userProfile.primaryProfile)
               
-              alert('Successfully logged in.')
+              showSuccess('Successfully logged in.')
               navigate(dashboardRoute, { replace: true })
             } else {
               console.warn('Login response missing token:', loginResponse)

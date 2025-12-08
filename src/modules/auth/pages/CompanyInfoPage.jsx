@@ -4,11 +4,13 @@ import { FloatingElements, ThemeToggle, TopNav, LogoSection, Footer } from '../.
 import { CustomDropdown } from '../../../components/ui'
 import authService from '../../../shared/services/authService'
 import userService from '../../../shared/services/userService'
+import { useToast } from '../../../components/ui/Toast/ToastProvider'
 import logo from '../../../assets/logo.svg'
 
 const CompanyInfoPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const { showSuccess } = useToast()
   
   const { userId, email, fullName } = location.state || {}
 
@@ -69,7 +71,7 @@ const CompanyInfoPage = () => {
       const dashboardRoute = userService.getDashboardRoute(userProfile.primaryProfile)
 
       // Show success message and redirect to dashboard
-      alert('Account created successfully! Welcome to Pathigai!')
+      showSuccess('Account created successfully! Welcome to Pathigai!')
       navigate(dashboardRoute, { replace: true })
 
     } catch (err) {
