@@ -10,6 +10,13 @@ const SMSVerificationPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
   
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (authService.getAuthToken()) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [navigate])
+  
   const { 
     userId, 
     maskedPhone, 
@@ -48,39 +55,6 @@ const SMSVerificationPage = () => {
       navigate('/login', { replace: true })
     }
   }, [userId, navigate])
-
-  // Auto-trigger SMS verification for temporary password users
-  useEffect(() => {
-    const initiateSMSVerification = async () => {
-      if (userId && isTemporaryPassword && context === 'LOGIN') {
-        try {
-          console.log('Auto-requesting SMS verification for temporary password user:', { userId, context })
-          
-          // First try to initiate verification
-          try {
-            const response = await authService.initiateVerification(userId, 'SMS', 'LOGIN')
-            console.log('SMS verification initiated successfully:', response)
-          } catch (initiateError) {
-            console.log('Initiate failed, trying resend:', initiateError.message)
-            // If initiate fails, try resend
-            const response = await authService.resendVerification(userId, 'SMS', 'LOGIN')
-            console.log('SMS verification resent successfully:', response)
-          }
-          
-          // Reset countdown after successful initiation
-          setCanResend(false)
-          setCountdown(120)
-        } catch (err) {
-          console.error('Failed to initiate SMS verification:', err)
-          setError(`Failed to send verification code: ${err.message || 'Please try resending manually.'}`)
-        }
-      }
-    }
-
-    // Add a small delay to ensure the page is fully loaded
-    const timer = setTimeout(initiateSMSVerification, 500)
-    return () => clearTimeout(timer)
-  }, [userId, isTemporaryPassword, context])
 
   // Cleanup on unmount
   useEffect(() => {

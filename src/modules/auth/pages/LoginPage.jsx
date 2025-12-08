@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { FloatingElements, ThemeToggle, LogoSection, Footer } from '../../../components/layout'
 import { PasswordInput, Recaptcha } from '../../../components/ui'
@@ -8,6 +8,13 @@ import userService from '../../../shared/services/userService'
 const LoginPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (authService.getAuthToken()) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [navigate])
   
   // Check if user just completed password reset
   const { passwordResetComplete, email: resetEmail } = location.state || {}
@@ -107,7 +114,8 @@ const LoginPage = () => {
             context: 'LOGIN',
             isTemporaryPassword: authResponse.temporaryPassword || authResponse.isTemporaryPassword,
             fullName: authResponse.fullName
-          }
+          },
+          replace: true
         })
         return
       } else if (authResponse.nextStep === 'EMAIL_VERIFICATION_REQUIRED') {
@@ -123,7 +131,8 @@ const LoginPage = () => {
             context: 'LOGIN',
             isTemporaryPassword: authResponse.temporaryPassword || authResponse.isTemporaryPassword,
             fullName: authResponse.fullName
-          }
+          },
+          replace: true
         })
         return
       }

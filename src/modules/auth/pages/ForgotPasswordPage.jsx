@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FloatingElements, ThemeToggle, TopNav, LogoSection, Footer } from '../../../components/layout'
 
@@ -12,6 +12,13 @@ import logo from '../../../assets/logo.svg'
 
 const ForgotPasswordPage = () => {
   const navigate = useNavigate()
+  
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (authService.getAuthToken()) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [navigate])
   
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
@@ -66,7 +73,8 @@ const ForgotPasswordPage = () => {
           nextStep: response.nextStep,
           context: 'PASSWORD_RESET',
           fullName: response.fullName
-        }
+        },
+        replace: true
       })
 
     } catch (err) {

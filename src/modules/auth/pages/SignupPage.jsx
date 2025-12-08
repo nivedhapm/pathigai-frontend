@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FloatingElements, ThemeToggle, LogoSection, Footer } from '../../../components/layout'
 import { PasswordInput, PasswordStrengthIndicator, Recaptcha } from '../../../components/ui'
@@ -6,6 +6,13 @@ import authService from '../../../shared/services/authService'
 
 const SignupPage = () => {
   const navigate = useNavigate()
+  
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (authService.getAuthToken()) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [navigate])
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -97,7 +104,8 @@ const SignupPage = () => {
           context: 'SIGNUP',
           fullName: formData.fullName,
           developmentMode: true // Add this flag
-        }
+        },
+        replace: true
       })
 
     } catch (err) {

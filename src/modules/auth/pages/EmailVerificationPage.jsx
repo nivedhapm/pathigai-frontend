@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { FloatingElements, ThemeToggle, TopNav, LogoSection, Footer } from '../../../components/layout'
 import { OTPInput } from '../../../components/ui'
 import authService from '../../../shared/services/authService'
+import userService from '../../../shared/services/userService'
 import logo from '../../../assets/logo.svg'
 
 const EmailVerificationPage = () => {
@@ -36,6 +37,13 @@ const EmailVerificationPage = () => {
       setCanResend(true)
     }
   }, [countdown])
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (authService.getAuthToken()) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [navigate])
 
   // Redirect if no required data
   useEffect(() => {
@@ -84,7 +92,8 @@ const EmailVerificationPage = () => {
               userId,
               email,
               fullName
-            }
+            },
+            replace: true
           })
         }
       } else if (context === 'LOGIN') {
@@ -95,7 +104,8 @@ const EmailVerificationPage = () => {
               email,
               isTemporaryPassword: true,
               fullName
-            }
+            },
+            replace: true
           })
         } else {
           // Complete login
@@ -103,8 +113,10 @@ const EmailVerificationPage = () => {
           
           if (loginResponse.jwtToken) {
             // Login successful - show popup and redirect to dashboard
+            const userProfile = userService.getSimulatedUserProfile()
+            const dashboardRoute = userService.getDashboardRoute(userProfile.primaryProfile)
             alert('Successfully logged in.')
-            navigate('/dashboard')
+            navigate(dashboardRoute, { replace: true })
           }
         }
       } else if (context === 'PASSWORD_RESET') {
@@ -114,7 +126,8 @@ const EmailVerificationPage = () => {
             email,
             isPasswordReset: true,
             fullName
-          }
+          },
+          replace: true
         })
       }
 

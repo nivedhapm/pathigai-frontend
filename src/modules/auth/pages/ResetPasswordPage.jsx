@@ -9,6 +9,13 @@ const ResetPasswordPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
   
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (authService.getAuthToken()) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [navigate])
+  
   const { 
     userId, 
     email, 
@@ -99,7 +106,8 @@ const ResetPasswordPage = () => {
           state: { 
             passwordResetComplete: true,
             email: email 
-          }
+          },
+          replace: true
         })
       } else {
         await authService.resetPassword(resetData)
@@ -108,7 +116,8 @@ const ResetPasswordPage = () => {
           state: { 
             passwordResetComplete: true,
             email: email 
-          }
+          },
+          replace: true
         })
       }
 
