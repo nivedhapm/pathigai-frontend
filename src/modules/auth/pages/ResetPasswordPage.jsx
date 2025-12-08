@@ -9,6 +9,7 @@ import logo from '../../../assets/logo.svg'
 const ResetPasswordPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const { showSuccess } = useToast()
   
   // Redirect authenticated users to dashboard
   useEffect(() => {

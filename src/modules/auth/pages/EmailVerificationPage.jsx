@@ -10,6 +10,7 @@ import logo from '../../../assets/logo.svg'
 const EmailVerificationPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const { showSuccess } = useToast()
   
   const { 
     userId, 
