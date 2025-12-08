@@ -1,13 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { FloatingElements, ThemeToggle, LogoSection, Footer } from '../../../components/layout'
 import { PasswordInput, Recaptcha } from '../../../components/ui'
 import authService from '../../../shared/services/authService'
 import userService from '../../../shared/services/userService'
+import { useToast } from '../../../components/ui/Toast/ToastProvider'
 
 const LoginPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const { showSuccess } = useToast()
+  
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (authService.getAuthToken()) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [navigate])
   
   // Check if user just completed password reset
   const { passwordResetComplete, email: resetEmail } = location.state || {}
@@ -86,7 +95,7 @@ const LoginPage = () => {
             const userProfile = userService.getSimulatedUserProfile() // TODO: Get from API
             const dashboardRoute = userService.getDashboardRoute(userProfile.primaryProfile)
             
-            alert('Successfully logged in!')
+            showSuccess('Successfully logged in!')
             navigate(dashboardRoute, { replace: true })
             return
           }
@@ -107,7 +116,8 @@ const LoginPage = () => {
             context: 'LOGIN',
             isTemporaryPassword: authResponse.temporaryPassword || authResponse.isTemporaryPassword,
             fullName: authResponse.fullName
-          }
+          },
+          replace: true
         })
         return
       } else if (authResponse.nextStep === 'EMAIL_VERIFICATION_REQUIRED') {
@@ -123,7 +133,8 @@ const LoginPage = () => {
             context: 'LOGIN',
             isTemporaryPassword: authResponse.temporaryPassword || authResponse.isTemporaryPassword,
             fullName: authResponse.fullName
-          }
+          },
+          replace: true
         })
         return
       }
@@ -136,7 +147,7 @@ const LoginPage = () => {
           const userProfile = userService.getSimulatedUserProfile() // TODO: Get from API
           const dashboardRoute = userService.getDashboardRoute(userProfile.primaryProfile)
           
-          alert('Successfully logged in!')
+          showSuccess('Successfully logged in!')
           navigate(dashboardRoute, { replace: true })
         } else {
           setError('Login completion failed. Please contact support.')

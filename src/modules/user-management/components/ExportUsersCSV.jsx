@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Download, FileText, Users, AlertCircle } from 'lucide-react'
 import { Button, CustomDropdown } from '../../../components/ui'
+import { useToast } from '../../../components/ui/Toast/ToastProvider'
 
 const ExportUsersCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
+  const { showError } = useToast()
   const [exportOptions, setExportOptions] = useState({
     includeInactive: false,
     includePersonalInfo: true,
@@ -204,7 +206,7 @@ const ExportUsersCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
       
     } catch (error) {
       console.error('Export failed:', error)
-      alert('Export failed. Please try again.')
+      showError('Export failed. Please try again.')
     } finally {
       setLoading(false)
     }

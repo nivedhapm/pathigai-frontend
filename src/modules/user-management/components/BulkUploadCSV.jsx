@@ -88,7 +88,7 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
     if (csvFile) {
       handleFileSelect(csvFile)
     } else {
-      alert('Please upload a CSV file')
+      showError('Please upload a CSV file')
     }
   }
 
@@ -114,7 +114,7 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
         const lines = text.split('\n').filter(line => line.trim())
         
         if (lines.length < 2) {
-          alert('CSV file must contain at least a header row and one data row')
+          showError('CSV file must contain at least a header row and one data row')
           setLoading(false)
           return
         }
@@ -125,7 +125,7 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
         // Validate required headers
         const missingHeaders = REQUIRED_HEADERS.filter(req => !headers.includes(req.toLowerCase()))
         if (missingHeaders.length > 0) {
-          alert(`Missing required headers: ${missingHeaders.join(', ')}`)
+          showError(`Missing required headers: ${missingHeaders.join(', ')}`)
           setLoading(false)
           return
         }
@@ -152,7 +152,7 @@ const BulkUploadCSV = ({ userProfile = 'SUPER_ADMIN' }) => {
         setUploadStep('preview')
       } catch (error) {
         console.error('Error parsing CSV:', error)
-        alert('Error parsing CSV file. Please check the format.')
+        showError('Error parsing CSV file. Please check the format.')
       } finally {
         setLoading(false)
       }

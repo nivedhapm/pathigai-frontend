@@ -3,11 +3,19 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { FloatingElements, ThemeToggle, TopNav, LogoSection, Footer } from '../../../components/layout'
 import { PasswordInput, PasswordStrengthIndicator } from '../../../components/ui'
 import authService from '../../../shared/services/authService'
+import { useToast } from '../../../components/ui/Toast/ToastProvider'
 import logo from '../../../assets/logo.svg'
 
 const ResetPasswordPage = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (authService.getAuthToken()) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [navigate])
   
   const { 
     userId, 
@@ -94,21 +102,23 @@ const ResetPasswordPage = () => {
 
       if (isTemporaryPassword) {
         await authService.resetTemporaryPassword(resetData)
-        alert('Password reset successful! Please login with your new password.')
+        showSuccess('Password reset successful! Please login with your new password.')
         navigate('/login', { 
           state: { 
             passwordResetComplete: true,
             email: email 
-          }
+          },
+          replace: true
         })
       } else {
         await authService.resetPassword(resetData)
-        alert('Password reset successful! Please login with your new password.')
+        showSuccess('Password reset successful! Please login with your new password.')
         navigate('/login', { 
           state: { 
             passwordResetComplete: true,
             email: email 
-          }
+          },
+          replace: true
         })
       }
 

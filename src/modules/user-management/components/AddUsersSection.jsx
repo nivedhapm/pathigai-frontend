@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { UserPlus, Upload, ArrowLeft } from 'lucide-react'
 import { Button } from '../../../components/ui'
+import { useToast } from '../../../components/ui/Toast/ToastProvider'
 import UserForm from './UserForm'
 import BulkUploadCSV from './BulkUploadCSV'
 import userService from '../../../shared/services/userService'
@@ -11,6 +12,7 @@ import '../styles/bulk-upload.css'
 const AddUsersSection = () => {
   const [activeView, setActiveView] = useState('options') // 'options', 'single-user', 'bulk-upload'
   const [currentUserProfile, setCurrentUserProfile] = useState('SUPER_ADMIN')
+  const { showSuccess, showError } = useToast()
 
   // Get current user profile on component mount
   useEffect(() => {
@@ -26,19 +28,19 @@ const AddUsersSection = () => {
   const handleAddUser = async (userData) => {
     try {
       const response = await userService.createUser(userData)
-      alert('User created successfully!')
+      showSuccess('User created successfully!')
       setActiveView('options')
     } catch (error) {
       console.error('Failed to create user:', error)
       
       if (error.status === 401) {
-        alert('Session expired. Please log in again.')
+        showError('Session expired. Please log in again.')
       } else if (error.status === 403 || error.message?.includes('Access denied')) {
-        alert('Access denied. You do not have permission to create users.')
+        showError('Access denied. You do not have permission to create users.')
       } else if (error.status === 500) {
-        alert('Server error: ' + (error.data?.message || error.message || 'Unknown server error'))
+        showError('Server error: ' + (error.data?.message || error.message || 'Unknown server error'))
       } else {
-        alert('Failed to create user: ' + (error.message || 'Unknown error'))
+        showError('Failed to create user: ' + (error.message || 'Unknown error'))
       }
     }
   }
