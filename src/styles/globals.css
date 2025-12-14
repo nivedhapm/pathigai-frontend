@@ -208,6 +208,8 @@ body.dark .top-nav {
   background: #8FB7C6;
   color: #fff;
   box-shadow: 0 4px 12px rgba(143, 183, 198, 0.4);
+  border-radius: 8px;
+  text-decoration: none;
 }
 
 .btn-primary:hover {
@@ -217,15 +219,15 @@ body.dark .top-nav {
 }
 
 body.dark .btn-primary {
-  background: #111;
+  background: #8FB7C6;
   color: #fff;
-  box-shadow: 0 4px 12px rgba(17, 17, 17, 0.6);
+  box-shadow: 0 4px 12px rgba(143, 183, 198, 0.4);
 }
 
 body.dark .btn-primary:hover {
-  background: #222;
+  background: #7ba5b4;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
+  box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
 }
 
 .btn-secondary {
@@ -241,13 +243,13 @@ body.dark .btn-primary:hover {
 }
 
 body.dark .btn-secondary {
-  background: #111;
-  box-shadow: 0 4px 12px rgba(17, 17, 17, 0.6);
+  background: #8FB7C6;
+  box-shadow: 0 4px 12px rgba(143, 183, 198, 0.4);
 }
 
 body.dark .btn-secondary:hover {
-  background: #222;
-  box-shadow: 0 6px 16px rgba(17, 17, 17, 0.8);
+  background: #7ba5b4;
+  box-shadow: 0 6px 16px rgba(143, 183, 198, 0.5);
 }
 
 /* Logo Section */
@@ -256,6 +258,7 @@ body.dark .btn-secondary:hover {
   text-align: center;
   min-width: 200px;
   max-height: fit-content;
+  padding-top: 60px;
 }
 
 .logo-section img {
@@ -675,6 +678,7 @@ body.dark footer a {
     gap: 1.5rem;
     padding: 15px;
     min-height: calc(100vh - 60px); /* Keep proper height calculation */
+    margin: 150px 20px;
   }
 
   .logo-section {
